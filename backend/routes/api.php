@@ -40,10 +40,11 @@ Route::pattern('hotel', '[0-9]+');
 Route::pattern('room', '[0-9]+');
 
 /** Middlewares aplicados a las operaciones de escritura. */
-$writeMiddleware = array_values(array_filter([
-    'throttle:'.config('hotel.rate_limit.write').',1',
-    config('hotel.auth_enabled') ? 'auth:sanctum' : null,
-]));
+$writeMiddleware = ['throttle:'.config('hotel.rate_limit.write').',1'];
+
+if (config('hotel.auth_enabled')) {
+    $writeMiddleware[] = 'auth:sanctum';
+}
 
 /** Middlewares aplicados a las operaciones de lectura. */
 $readMiddleware = ['throttle:'.config('hotel.rate_limit.read').',1'];

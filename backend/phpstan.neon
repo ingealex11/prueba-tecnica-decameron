@@ -1,0 +1,29 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - app
+        - config
+        - database
+        - routes
+
+    # Nivel 6 sobre una escala de 0 a 10.
+    #
+    # Es el punto donde el análisis ya exige que todo esté tipado —incluidos los
+    # genéricos de las colecciones y los arrays— sin llegar a los niveles 8 y 9,
+    # que obligan a comprobar contra `null` incluso donde el flujo del programa
+    # lo descarta y acaban generando ruido que se ignora.
+    #
+    # Se aplica también a `database` y `routes`, no sólo a `app`: los seeders y
+    # las rutas son código que puede romperse igual que el resto.
+    level: 6
+
+    # Comprueba que las propiedades usadas en los modelos existan realmente en
+    # la tabla. Detecta erratas como `$hotel->max_room` que de otro modo sólo
+    # se manifestarían en tiempo de ejecución, y como `null`, no como error.
+    checkModelProperties: true
+
+    # No hay `ignoreErrors` ni fichero de línea base: silenciar un error del
+    # análisis estático es aplazarlo, no resolverlo. Si aparece uno, se corrige
+    # el código que lo provoca.

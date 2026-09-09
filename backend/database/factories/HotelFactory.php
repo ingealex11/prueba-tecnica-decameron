@@ -15,9 +15,8 @@ final class HotelFactory extends Factory
 {
     protected $model = Hotel::class;
 
-    /**
-     * @return array<string, mixed>
-     */
+    // El tipo de retorno lo declara el método padre; repetirlo aquí con la
+    // sintaxis de Larastan no resulta analizable en la clase hija.
     public function definition(): array
     {
         return [

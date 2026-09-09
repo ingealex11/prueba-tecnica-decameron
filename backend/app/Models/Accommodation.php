@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Database\Factories\AccommodationFactory;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -21,9 +19,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Accommodation extends Model
 {
-    /** @use HasFactory<AccommodationFactory> */
-    use HasFactory;
-
     /**
      * Identificadores estables de las acomodaciones definidas por el enunciado.
      */

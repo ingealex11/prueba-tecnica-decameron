@@ -1,0 +1,164 @@
+name: CI
+
+# Se ejecuta en cada cambio sobre `main` y en cada pull request, de modo que
+# ningún cambio se integre sin haber pasado por estilo, análisis estático,
+# pruebas y compilación.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Si se empujan dos cambios seguidos a la misma rama, se cancela la ejecución
+# anterior: verificar un commit que ya quedó obsoleto sólo consume tiempo de
+# máquina y retrasa el resultado del commit vigente.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Backend
+  # ---------------------------------------------------------------------------
+  backend:
+    name: Backend · PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      # Sin `fail-fast`, un fallo en una versión de PHP no cancela la otra: es
+      # útil saber si el problema afecta a las dos o sólo a una.
+      fail-fast: false
+      matrix:
+        # Se verifica el mínimo declarado en composer.json y la versión
+        # siguiente, para detectar incompatibilidades antes de actualizar.
+        php: ['8.2', '8.3']
+
+    services:
+      # Las pruebas corren contra PostgreSQL real y no contra SQLite: el esquema
+      # usa restricciones CHECK e índices únicos parciales, y las consultas el
+      # operador ILIKE. Sobre otro motor la suite pasaría sin decir nada del
+      # comportamiento en producción.
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: decameron
+          POSTGRES_PASSWORD: decameron_2026
+          POSTGRES_DB: decameron_testing
+        ports:
+          - 5432:5432
+        # El contenedor tarda en aceptar conexiones; sin esta comprobación las
+        # migraciones arrancarían antes de tiempo y fallarían de forma
+        # intermitente.
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Preparar PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: pdo, pdo_pgsql, pgsql, mbstring, bcmath, intl
+          coverage: xdebug
+          tools: composer:v2
+
+      - name: Cachear las dependencias de Composer
+        uses: actions/cache@v4
+        with:
+          path: backend/vendor
+          key: composer-${{ matrix.php }}-${{ hashFiles('backend/composer.lock') }}
+          restore-keys: composer-${{ matrix.php }}-
+
+      - name: Instalar dependencias
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Preparar el entorno
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Verificar el estilo del código
+        # `--test` sólo informa; en integración continua no debe reformatearse
+        # el código, porque el resultado no se guarda en ningún sitio.
+        run: ./vendor/bin/pint --test
+
+      - name: Análisis estático
+        run: ./vendor/bin/phpstan analyse --no-progress
+
+      - name: Migrar la base de datos de pruebas
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: decameron_testing
+          DB_USERNAME: decameron
+          DB_PASSWORD: decameron_2026
+        run: php artisan migrate --force
+
+      - name: Ejecutar las pruebas
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: decameron_testing
+          DB_USERNAME: decameron
+          DB_PASSWORD: decameron_2026
+        run: ./vendor/bin/pest --coverage --min=70
+
+  # ---------------------------------------------------------------------------
+  # Frontend
+  # ---------------------------------------------------------------------------
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Preparar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Instalar dependencias
+        # `npm ci` instala exactamente lo que fija package-lock.json, a
+        # diferencia de `npm install`, que puede resolver versiones distintas y
+        # hacer que la verificación no represente lo que se despliega.
+        run: npm ci
+
+      - name: Verificar el estilo del código
+        run: npm run lint
+
+      - name: Comprobar los tipos
+        run: npm run typecheck
+
+      - name: Ejecutar las pruebas
+        run: npm run test
+
+      - name: Compilar para producción
+        # Compilar en CI detecta los fallos que sólo aparecen en la
+        # construcción optimizada y no en el servidor de desarrollo.
+        run: npm run build
+
+      - name: Conservar el resultado de la compilación
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+          retention-days: 7
