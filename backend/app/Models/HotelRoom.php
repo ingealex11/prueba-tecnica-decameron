@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Database\Factories\HotelRoomFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,18 +13,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * Configuración de habitaciones de un hotel: cuántas habitaciones tiene de un
  * tipo y una acomodación determinados.
  *
- * @property int                 $id
- * @property int                 $hotel_id
- * @property int                 $room_type_id
- * @property int                 $accommodation_id
- * @property int                 $quantity
+ * @property int $id
+ * @property int $hotel_id
+ * @property int $room_type_id
+ * @property int $accommodation_id
+ * @property int $quantity
  * @property-read Hotel          $hotel
  * @property-read RoomType       $roomType
  * @property-read Accommodation  $accommodation
  */
 class HotelRoom extends Model
 {
-    /** @use HasFactory<\Database\Factories\HotelRoomFactory> */
+    /** @use HasFactory<HotelRoomFactory> */
     use HasFactory;
 
     protected $fillable = [

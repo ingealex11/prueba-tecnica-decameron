@@ -137,7 +137,7 @@ final class HotelSeeder extends Seeder
      * hotel; las pruebas automatizadas verifican que así sea.
      *
      * @param  list<array{0: int, 1: string, 2: string}>  $configurations
-     *         Tripletas de cantidad, slug de tipo y slug de acomodación.
+     *                                                                     Tripletas de cantidad, slug de tipo y slug de acomodación.
      */
     private function configureRooms(Hotel $hotel, array $configurations): void
     {

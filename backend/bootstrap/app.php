@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Exceptions\ApiExceptionHandler;
 use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
@@ -29,5 +30,5 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions): void {
         // El registro de excepciones vive en su propia clase para no convertir
         // este archivo de arranque en un contenedor de lógica.
-        App\Exceptions\ApiExceptionHandler::register($exceptions);
+        ApiExceptionHandler::register($exceptions);
     })->create();

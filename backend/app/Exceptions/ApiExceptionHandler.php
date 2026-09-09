@@ -167,7 +167,7 @@ final class ApiExceptionHandler
      * "sin errores de campo" y "campo errors ausente".
      *
      * @param  array<string, list<string>>  $errors
-     * @param  array<string, mixed>         $meta
+     * @param  array<string, mixed>  $meta
      */
     private static function respond(
         int $status,

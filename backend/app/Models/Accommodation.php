@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Database\Factories\AccommodationFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -12,15 +13,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * Acomodación del catálogo: Sencilla, Doble, Triple o Cuádruple.
  *
- * @property int    $id
+ * @property int $id
  * @property string $name
  * @property string $slug
- * @property int    $capacity
- * @property int    $sort_order
+ * @property int $capacity
+ * @property int $sort_order
  */
 class Accommodation extends Model
 {
-    /** @use HasFactory<\Database\Factories\AccommodationFactory> */
+    /** @use HasFactory<AccommodationFactory> */
     use HasFactory;
 
     /**

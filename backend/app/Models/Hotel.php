@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Database\Factories\HotelFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,18 +16,18 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * Hotel de la compañía, con sus datos básicos y tributarios.
  *
- * @property int         $id
- * @property string      $name
- * @property string      $address
- * @property int         $city_id
- * @property string      $nit
- * @property int         $max_rooms
+ * @property int $id
+ * @property string $name
+ * @property string $address
+ * @property int $city_id
+ * @property string $nit
+ * @property int $max_rooms
  * @property-read City   $city
- * @property-read \Illuminate\Database\Eloquent\Collection<int, HotelRoom> $rooms
+ * @property-read Collection<int, HotelRoom> $rooms
  */
 class Hotel extends Model
 {
-    /** @use HasFactory<\Database\Factories\HotelFactory> */
+    /** @use HasFactory<HotelFactory> */
     use HasFactory;
 
     use SoftDeletes;

@@ -33,8 +33,8 @@ final readonly class RoomCapacityValidator
     /**
      * Verifica que añadir o modificar una configuración no supere el máximo.
      *
-     * @param  Hotel     $hotel         Hotel afectado, con su fila ya bloqueada.
-     * @param  int       $quantity      Cantidad que se quiere dejar registrada.
+     * @param  Hotel  $hotel  Hotel afectado, con su fila ya bloqueada.
+     * @param  int  $quantity  Cantidad que se quiere dejar registrada.
      * @param  int|null  $exceptRoomId  Configuración que se está editando; su
      *                                  cantidad actual no cuenta contra el
      *                                  total, porque va a ser reemplazada.

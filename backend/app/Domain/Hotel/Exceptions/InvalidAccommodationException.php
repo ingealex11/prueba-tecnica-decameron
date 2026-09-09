@@ -18,9 +18,9 @@ use App\Domain\Shared\Exceptions\DomainException;
 final class InvalidAccommodationException extends DomainException
 {
     /**
-     * @param  string        $roomTypeName       Tipo que se intentó configurar.
-     * @param  string        $accommodationName  Acomodación rechazada.
-     * @param  list<string>  $allowed            Acomodaciones que sí admite el tipo.
+     * @param  string  $roomTypeName  Tipo que se intentó configurar.
+     * @param  string  $accommodationName  Acomodación rechazada.
+     * @param  list<string>  $allowed  Acomodaciones que sí admite el tipo.
      */
     public function __construct(
         private readonly string $roomTypeName,

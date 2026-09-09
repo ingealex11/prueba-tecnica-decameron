@@ -6,6 +6,7 @@ namespace App\Domain\Hotel\Services;
 
 use App\Domain\Hotel\Data\HotelData;
 use App\Domain\Hotel\Data\HotelFilterData;
+use App\Domain\Hotel\Exceptions\MaxRoomsBelowConfiguredException;
 use App\Domain\Hotel\Repositories\HotelRepositoryInterface;
 use App\Domain\Shared\Exceptions\ResourceNotFoundException;
 use App\Models\Hotel;
@@ -67,7 +68,7 @@ final readonly class HotelService implements HotelServiceInterface
      * comprobación y la escritura y dejar el hotel por encima de su tope.
      *
      * @throws ResourceNotFoundException
-     * @throws \App\Domain\Hotel\Exceptions\MaxRoomsBelowConfiguredException
+     * @throws MaxRoomsBelowConfiguredException
      */
     public function update(int $id, HotelData $data): Hotel
     {
@@ -84,9 +85,13 @@ final readonly class HotelService implements HotelServiceInterface
     /**
      * Da de baja un hotel.
      *
-     * El borrado es lógico, de modo que el registro histórico se conserva. Sus
-     * configuraciones de habitación se eliminan en cascada por la definición de
-     * la clave foránea.
+     * El borrado es lógico: la fila permanece y el registro histórico se
+     * conserva, junto con su configuración de habitaciones, de modo que
+     * restaurar el hotel lo devuelve tal como estaba.
+     *
+     * A partir de la baja el hotel desaparece de los listados y de las
+     * consultas, y su nombre y NIT quedan libres para reutilizarse —los índices
+     * únicos son parciales sobre los hoteles activos—.
      *
      * @throws ResourceNotFoundException
      */

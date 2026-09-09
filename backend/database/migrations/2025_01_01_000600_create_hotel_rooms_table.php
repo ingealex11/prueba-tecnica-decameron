@@ -33,6 +33,12 @@ return new class extends Migration
         Schema::create('hotel_rooms', function (Blueprint $table): void {
             $table->id();
 
+            // La cascada actúa sobre el borrado físico. Como los hoteles usan
+            // borrado lógico, dar de baja uno conserva su configuración: si más
+            // adelante se restaura, vuelve tal como estaba. Sus habitaciones
+            // quedan mientras tanto inaccesibles, porque todo endpoint de
+            // habitaciones resuelve primero el hotel y éste ya no figura entre
+            // los activos.
             $table->foreignId('hotel_id')
                 ->comment('Hotel al que pertenece la configuración')
                 ->constrained('hotels')

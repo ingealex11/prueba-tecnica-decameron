@@ -27,8 +27,8 @@ return new class extends Migration
         Schema::create('hotels', function (Blueprint $table): void {
             $table->id();
 
-            $table->string('name', 150)->unique()
-                ->comment('Razón comercial del hotel; único en toda la compañía');
+            $table->string('name', 150)
+                ->comment('Razón comercial del hotel; único entre los hoteles activos');
             $table->string('address', 200)
                 ->comment('Dirección física del inmueble');
 
@@ -37,7 +37,7 @@ return new class extends Migration
                 ->constrained('cities')
                 ->restrictOnDelete();
 
-            $table->string('nit', 20)->unique()
+            $table->string('nit', 20)
                 ->comment('NIT con dígito de verificación; texto, nunca numérico');
 
             $table->unsignedInteger('max_rooms')
@@ -54,6 +54,28 @@ return new class extends Migration
         // `unsignedInteger` ya impide negativos; este CHECK añade que el hotel
         // declare al menos una habitación, que es lo que exige el negocio.
         DB::statement('ALTER TABLE hotels ADD CONSTRAINT hotels_max_rooms_positive CHECK (max_rooms > 0)');
+
+        /*
+         * Unicidad de nombre y NIT mediante índices únicos PARCIALES.
+         *
+         * Un UNIQUE corriente abarcaría también las filas con borrado lógico, y
+         * entonces el nombre de un hotel dado de baja quedaría bloqueado para
+         * siempre: la aplicación aceptaría reutilizarlo y la base de datos lo
+         * rechazaría, dejando las dos barreras en desacuerdo.
+         *
+         * La cláusula WHERE deleted_at IS NULL —una característica de
+         * PostgreSQL— restringe el índice a los hoteles activos, que es
+         * exactamente lo que valida la aplicación. Ambas barreras quedan así
+         * alineadas: se impide duplicar hoteles vigentes y se permite reutilizar
+         * el nombre de uno retirado.
+         */
+        DB::statement(
+            'CREATE UNIQUE INDEX hotels_name_unique_active ON hotels (name) WHERE deleted_at IS NULL'
+        );
+
+        DB::statement(
+            'CREATE UNIQUE INDEX hotels_nit_unique_active ON hotels (nit) WHERE deleted_at IS NULL'
+        );
     }
 
     public function down(): void

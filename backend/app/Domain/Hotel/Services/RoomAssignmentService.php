@@ -6,6 +6,8 @@ namespace App\Domain\Hotel\Services;
 
 use App\Domain\Hotel\Data\RoomAssignmentData;
 use App\Domain\Hotel\Exceptions\DuplicateRoomConfigurationException;
+use App\Domain\Hotel\Exceptions\InvalidAccommodationException;
+use App\Domain\Hotel\Exceptions\RoomCapacityExceededException;
 use App\Domain\Hotel\Repositories\CatalogRepositoryInterface;
 use App\Domain\Hotel\Repositories\HotelRepositoryInterface;
 use App\Domain\Hotel\Repositories\RoomRepositoryInterface;
@@ -62,9 +64,9 @@ final readonly class RoomAssignmentService implements RoomAssignmentServiceInter
      * Asigna una configuración de habitaciones nueva a un hotel.
      *
      * @throws ResourceNotFoundException
-     * @throws \App\Domain\Hotel\Exceptions\InvalidAccommodationException
+     * @throws InvalidAccommodationException
      * @throws DuplicateRoomConfigurationException
-     * @throws \App\Domain\Hotel\Exceptions\RoomCapacityExceededException
+     * @throws RoomCapacityExceededException
      */
     public function assign(int $hotelId, RoomAssignmentData $data): HotelRoom
     {
@@ -88,9 +90,9 @@ final readonly class RoomAssignmentService implements RoomAssignmentServiceInter
      * haciendo imposible cualquier aumento.
      *
      * @throws ResourceNotFoundException
-     * @throws \App\Domain\Hotel\Exceptions\InvalidAccommodationException
+     * @throws InvalidAccommodationException
      * @throws DuplicateRoomConfigurationException
-     * @throws \App\Domain\Hotel\Exceptions\RoomCapacityExceededException
+     * @throws RoomCapacityExceededException
      */
     public function update(int $hotelId, int $roomId, RoomAssignmentData $data): HotelRoom
     {
@@ -178,7 +180,7 @@ final readonly class RoomAssignmentService implements RoomAssignmentServiceInter
      * Ambas se agrupan aquí porque las comparten `assign()` y `update()`; la
      * única diferencia entre los dos casos es qué configuración se excluye.
      *
-     * @throws \App\Domain\Hotel\Exceptions\InvalidAccommodationException
+     * @throws InvalidAccommodationException
      * @throws DuplicateRoomConfigurationException
      */
     private function guardAgainstInvalidConfiguration(
