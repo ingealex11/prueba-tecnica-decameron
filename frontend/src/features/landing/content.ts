@@ -270,8 +270,8 @@ export const PERSISTENCE = [
 ]
 
 export const QUALITY = [
-  { label: 'Pruebas automatizadas', value: '96', note: 'unitarias y de integración' },
-  { label: 'Aserciones', value: '239', note: 'sobre PostgreSQL real' },
+  { label: 'Pruebas automatizadas', value: '141', note: '96 de backend y 45 de frontend' },
+  { label: 'Análisis estático', value: 'Nivel 6', note: 'Larastan, sin errores silenciados' },
   { label: 'Endpoints REST', value: '12', note: 'versionados en /api/v1' },
   { label: 'Integración continua', value: 'GitHub Actions', note: 'estilo, análisis estático, pruebas y compilación' },
 ]

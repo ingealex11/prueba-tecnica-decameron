@@ -467,7 +467,7 @@ function Quality() {
           {
             title: 'Pruebas unitarias',
             detail:
-              'Las doce combinaciones posibles de tipo y acomodación, los casos frontera de capacidad y una prueba que demuestra el principio Abierto/Cerrado añadiendo un tipo sin modificar código.',
+              'Las doce combinaciones posibles de tipo y acomodación —las siete válidas y las cinco que deben rechazarse—, los casos frontera de capacidad y una prueba que demuestra el principio Abierto/Cerrado añadiendo un tipo sin modificar código existente.',
           },
           {
             title: 'Pruebas de integración',

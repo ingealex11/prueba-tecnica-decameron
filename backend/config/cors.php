@@ -25,6 +25,9 @@ $allowedOrigins = array_values(array_filter(
     static fn (string $origin): bool => $origin !== '',
 ));
 
+/** Patrón opcional de origen, para los subdominios de vista previa. */
+$originPattern = trim((string) env('CORS_ALLOWED_ORIGIN_PATTERN', ''));
+
 return [
 
     // Sólo la API necesita CORS; el resto de rutas no las consume el frontend.
@@ -40,9 +43,11 @@ return [
 
     // Permite que los despliegues de vista previa de Vercel, cuyo subdominio
     // cambia en cada publicación, sigan funcionando sin reconfigurar nada.
-    'allowed_origins_patterns' => array_values(array_filter([
-        env('CORS_ALLOWED_ORIGIN_PATTERN'),
-    ])),
+    //
+    // Se comprueba que sea una cadena no vacía: `env()` devuelve booleanos
+    // cuando la variable vale "true" o "false", y un booleano aquí produciría
+    // un error al intentar usarlo como expresión regular.
+    'allowed_origins_patterns' => $originPattern !== '' ? [$originPattern] : [],
 
     'allowed_headers' => [
         'Accept',
