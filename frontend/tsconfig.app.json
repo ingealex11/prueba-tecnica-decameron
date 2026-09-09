@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "target": "es2023",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "esnext",
+    "types": ["vite/client", "vitest/globals"],
+    "allowArbitraryExtensions": true,
+    "skipLibCheck": true,
+
+    /* Resolución en modo empaquetador */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Alias de rutas: evita las cadenas de ../../.. entre carpetas.
+       Sin `baseUrl`, que quedó obsoleto: las rutas se resuelven respecto a
+       este archivo. */
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+
+    /* Comprobaciones estrictas.
+       `strict` activa el conjunto completo, del que lo más valioso aquí es
+       `strictNullChecks`: obliga a tratar de forma explícita los datos que
+       aún no llegaron del servidor, que es la fuente habitual del clásico
+       "cannot read property of undefined" en tiempo de ejecución. */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["src"]
+}
