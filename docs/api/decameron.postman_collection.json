@@ -1,0 +1,516 @@
+{
+  "info": {
+    "name": "Decameron · Gestión Hotelera API v1",
+    "description": "Colección completa de la API del sistema de gestión hotelera.\n\nIncluye tanto las operaciones correctas como los casos que deben ser rechazados, porque son estos últimos los que demuestran que las reglas del enunciado se aplican de verdad.\n\n## Antes de empezar\n\nAjuste la variable `base_url` si su backend no corre en `http://localhost:8000`.\n\nLa carpeta **Reglas de negocio** contiene las peticiones que deben fallar, cada una con el código HTTP que se espera. No son errores de la colección: son la evidencia.\n\n## Autenticación\n\nLa API se entrega con la autenticación desactivada para poder evaluarse sin credenciales. Si la activa con `API_AUTH_ENABLED=true`, rellene la variable `token` y las peticiones de escritura la usarán automáticamente.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000/api/v1",
+      "description": "Dirección base de la API. En el despliegue en la nube, cámbiela por la del servidor publicado."
+    },
+    {
+      "key": "token",
+      "value": "",
+      "description": "Token de Sanctum. Sólo necesario si la API corre con API_AUTH_ENABLED=true."
+    },
+    {
+      "key": "hotel_id",
+      "value": "1",
+      "description": "Hotel sobre el que operan las peticiones anidadas. Se rellena solo al crear un hotel."
+    },
+    {
+      "key": "room_id",
+      "value": "1",
+      "description": "Configuración de habitación. Se rellena sola al asignar habitaciones."
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Sin token configurado se elimina la cabecera de autorización, para",
+          "// que la API desplegada sin autenticación no reciba un 'Bearer ' vacío.",
+          "if (!pm.collectionVariables.get('token')) {",
+          "    pm.request.headers.remove('Authorization');",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Catálogos",
+      "description": "Sólo lectura. El enunciado precisa que no se requieren administradores para los datos de catálogo, así que no existe ningún endpoint de escritura.",
+      "item": [
+        {
+          "name": "Ciudades",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/catalogs/cities", "host": ["{{base_url}}"], "path": ["catalogs", "cities"] },
+            "description": "Ciudades donde la compañía puede registrar hoteles, en orden alfabético."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Devuelve ciudades', () => {",
+                  "    pm.expect(pm.response.json().data).to.be.an('array').that.is.not.empty;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Tipos de habitación con sus acomodaciones válidas",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/catalogs/room-types", "host": ["{{base_url}}"], "path": ["catalogs", "room-types"] },
+            "description": "Cada tipo llega con las acomodaciones que admite. Es la fuente desde la que el frontend limita el selector, en lugar de duplicar la regla de negocio en el cliente."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "const porSlug = {};",
+                  "pm.response.json().data.forEach(t => porSlug[t.slug] = t.accommodations.map(a => a.slug));",
+                  "",
+                  "pm.test('Estándar admite Sencilla y Doble', () => {",
+                  "    pm.expect(porSlug.estandar).to.eql(['sencilla', 'doble']);",
+                  "});",
+                  "pm.test('Junior admite Triple y Cuádruple', () => {",
+                  "    pm.expect(porSlug.junior).to.eql(['triple', 'cuadruple']);",
+                  "});",
+                  "pm.test('Suite admite Sencilla, Doble y Triple', () => {",
+                  "    pm.expect(porSlug.suite).to.eql(['sencilla', 'doble', 'triple']);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Acomodaciones",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/catalogs/accommodations", "host": ["{{base_url}}"], "path": ["catalogs", "accommodations"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Hoteles",
+      "item": [
+        {
+          "name": "Listar hoteles",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/hotels?per_page=15&sort_by=name&sort_direction=asc",
+              "host": ["{{base_url}}"],
+              "path": ["hotels"],
+              "query": [
+                { "key": "search", "value": "decameron", "description": "Busca en nombre y NIT, sin distinguir mayúsculas", "disabled": true },
+                { "key": "city_id", "value": "5", "description": "Filtra por ciudad", "disabled": true },
+                { "key": "per_page", "value": "15", "description": "Resultados por página, máximo 100" },
+                { "key": "sort_by", "value": "name", "description": "name · nit · max_rooms · created_at" },
+                { "key": "sort_direction", "value": "asc", "description": "asc · desc" },
+                { "key": "page", "value": "1", "disabled": true }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Incluye metadatos de paginación', () => {",
+                  "    pm.expect(pm.response.json().meta.pagination).to.have.property('total');",
+                  "});",
+                  "pm.test('Cada hotel informa su capacidad', () => {",
+                  "    const hotel = pm.response.json().data[0];",
+                  "    pm.expect(hotel).to.have.property('occupied_rooms');",
+                  "    pm.expect(hotel).to.have.property('available_rooms');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ver un hotel",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/hotels/{{hotel_id}}", "host": ["{{base_url}}"], "path": ["hotels", "{{hotel_id}}"] },
+            "description": "Devuelve el hotel con todas sus configuraciones de habitación."
+          }
+        },
+        {
+          "name": "Registrar hotel",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/hotels", "host": ["{{base_url}}"], "path": ["hotels"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Decameron Los Cocos\",\n    \"address\": \"Vía al Mar Km 24\",\n    \"city_id\": 15,\n    \"nit\": \"901234567-8\",\n    \"max_rooms\": 90\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    const hotel = pm.response.json().data;",
+                  "    // Se guarda para que las peticiones siguientes operen sobre él.",
+                  "    pm.collectionVariables.set('hotel_id', hotel.id);",
+                  "    pm.test('Arranca con toda su capacidad libre', () => {",
+                  "        pm.expect(hotel.available_rooms).to.eql(hotel.max_rooms);",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar hotel",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/hotels/{{hotel_id}}", "host": ["{{base_url}}"], "path": ["hotels", "{{hotel_id}}"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Decameron Los Cocos\",\n    \"address\": \"Vía al Mar Km 24, sector norte\",\n    \"city_id\": 15,\n    \"nit\": \"901234567-8\",\n    \"max_rooms\": 120\n}"
+            }
+          }
+        },
+        {
+          "name": "Eliminar hotel",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/hotels/{{hotel_id}}", "host": ["{{base_url}}"], "path": ["hotels", "{{hotel_id}}"] },
+            "description": "Baja lógica: el registro se conserva para trazabilidad, deja de aparecer en los listados y su nombre y NIT quedan libres para reutilizarse."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('Responde 204 sin cuerpo', () => pm.response.to.have.status(204));"]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Configuración de habitaciones",
+      "item": [
+        {
+          "name": "Listar configuraciones del hotel",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/hotels/{{hotel_id}}/rooms", "host": ["{{base_url}}"], "path": ["hotels", "{{hotel_id}}", "rooms"] }
+          }
+        },
+        {
+          "name": "Asignar habitaciones",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/hotels/{{hotel_id}}/rooms", "host": ["{{base_url}}"], "path": ["hotels", "{{hotel_id}}", "rooms"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"room_type_id\": 1,\n    \"accommodation_id\": 1,\n    \"quantity\": 25\n}"
+            },
+            "description": "Estándar con acomodación Sencilla: combinación válida según el enunciado."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    pm.collectionVariables.set('room_id', pm.response.json().data.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Modificar una configuración",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/hotels/{{hotel_id}}/rooms/{{room_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["hotels", "{{hotel_id}}", "rooms", "{{room_id}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"room_type_id\": 1,\n    \"accommodation_id\": 1,\n    \"quantity\": 40\n}"
+            },
+            "description": "Al editar, la cantidad anterior vuelve al saldo disponible antes de comprobar la capacidad: de lo contrario, contarla dos veces haría imposible cualquier aumento."
+          }
+        },
+        {
+          "name": "Eliminar una configuración",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/hotels/{{hotel_id}}/rooms/{{room_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["hotels", "{{hotel_id}}", "rooms", "{{room_id}}"]
+            },
+            "description": "Libera las habitaciones de la capacidad ocupada del hotel."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reglas de negocio · deben fallar",
+      "description": "Estas peticiones están pensadas para ser rechazadas. Cada una comprueba uno de los criterios de aceptación del enunciado, y su código HTTP es la evidencia de que la regla se aplica.",
+      "item": [
+        {
+          "name": "Junior con acomodación Sencilla → 422",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/hotels/{{hotel_id}}/rooms", "host": ["{{base_url}}"], "path": ["hotels", "{{hotel_id}}", "rooms"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"room_type_id\": 2,\n    \"accommodation_id\": 1,\n    \"quantity\": 5\n}"
+            },
+            "description": "Enunciado: «Si el tipo de habitación es Junior, la acomodación debe ser Triple o Cuádruple»."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Rechaza con 422', () => pm.response.to.have.status(422));",
+                  "pm.test('Identifica la regla violada', () => {",
+                  "    pm.expect(pm.response.json().error_code).to.eql('INVALID_ACCOMMODATION_FOR_ROOM_TYPE');",
+                  "});",
+                  "pm.test('Indica qué acomodaciones sí son válidas', () => {",
+                  "    pm.expect(pm.response.json().meta.allowed_accommodations).to.eql(['Triple', 'Cuádruple']);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Combinación repetida en el mismo hotel → 409",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/hotels/1/rooms", "host": ["{{base_url}}"], "path": ["hotels", "1", "rooms"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"room_type_id\": 1,\n    \"accommodation_id\": 1,\n    \"quantity\": 1\n}"
+            },
+            "description": "Enunciado: «No debe existir tipos de habitaciones y acomodaciones repetidas para el mismo hotel».\n\nSe responde 409 y no 422 porque la petición está bien formada: el conflicto está en el estado del recurso, y la acción correcta es editar la configuración existente."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Rechaza con 409 Conflict', () => pm.response.to.have.status(409));",
+                  "pm.test('Identifica la regla violada', () => {",
+                  "    pm.expect(pm.response.json().error_code).to.eql('DUPLICATE_ROOM_CONFIGURATION');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Superar el máximo de habitaciones → 422",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/hotels/3/rooms", "host": ["{{base_url}}"], "path": ["hotels", "3", "rooms"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"room_type_id\": 2,\n    \"accommodation_id\": 4,\n    \"quantity\": 5000\n}"
+            },
+            "description": "Enunciado: «La cantidad de habitaciones configuradas no deben superar el máximo por hotel»."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Rechaza con 422', () => pm.response.to.have.status(422));",
+                  "pm.test('Identifica la regla violada', () => {",
+                  "    pm.expect(pm.response.json().error_code).to.eql('ROOM_CAPACITY_EXCEEDED');",
+                  "});",
+                  "pm.test('Informa cuántas habitaciones quedan', () => {",
+                  "    pm.expect(pm.response.json().meta).to.have.property('available_rooms');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Hotel con NIT ya registrado → 422",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/hotels", "host": ["{{base_url}}"], "path": ["hotels"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Hotel Con NIT Repetido\",\n    \"address\": \"Calle 100 20-30\",\n    \"city_id\": 5,\n    \"nit\": \"12345678-9\",\n    \"max_rooms\": 30\n}"
+            },
+            "description": "Enunciado: «No deben existir hoteles repetidos». El NIT 12345678-9 ya pertenece a Decameron Cartagena."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Rechaza con 422', () => pm.response.to.have.status(422));",
+                  "pm.test('Señala el campo NIT', () => {",
+                  "    pm.expect(pm.response.json().errors).to.have.property('nit');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Hotel inexistente → 404",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/hotels/999999", "host": ["{{base_url}}"], "path": ["hotels", "999999"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 404', () => pm.response.to.have.status(404));",
+                  "pm.test('Usa el lenguaje del negocio, no del ORM', () => {",
+                  "    pm.expect(pm.response.json().message).to.include('hotel');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Configuración de otro hotel → 404",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/hotels/2/rooms/1", "host": ["{{base_url}}"], "path": ["hotels", "2", "rooms", "1"] },
+            "description": "La configuración 1 pertenece al hotel 1. Intentar manipularla a través del hotel 2 debe fallar: sin comprobar la pertenencia, esto sería una referencia directa insegura a objetos."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('Responde 404', () => pm.response.to.have.status(404));"]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Escribir en un catálogo → 404 o 405",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/catalogs/cities", "host": ["{{base_url}}"], "path": ["catalogs", "cities"] },
+            "body": { "mode": "raw", "raw": "{\n    \"name\": \"Ciudad Inventada\"\n}" },
+            "description": "Enunciado: «No se requieren administradores para datos catálogos». La ausencia de endpoints de escritura es un requisito, no un olvido."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('No permite escribir en el catálogo', () => {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([404, 405]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
