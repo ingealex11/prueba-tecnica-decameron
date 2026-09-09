@@ -1,0 +1,47 @@
+# ---- Dependencias ----
+/backend/vendor/
+/frontend/node_modules/
+node_modules/
+
+# ---- Entorno (NUNCA versionar secretos) ----
+.env
+.env.*
+!.env.example
+!.env.testing.example
+
+# ---- Builds ----
+/frontend/dist/
+/frontend/.vite/
+/backend/public/build/
+/backend/public/hot
+
+# ---- Laravel runtime ----
+/backend/storage/*.key
+/backend/storage/framework/cache/data/*
+/backend/storage/framework/sessions/*
+/backend/storage/framework/views/*
+/backend/storage/logs/*
+/backend/bootstrap/cache/*
+!**/.gitkeep
+
+# ---- Testing / calidad ----
+/backend/.phpunit.result.cache
+/backend/.phpunit.cache/
+/backend/coverage/
+/frontend/coverage/
+.phpstan.cache/
+
+# ---- Editores / SO ----
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.fleet/
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+
+# ---- Logs ----
+*.log
+npm-debug.log*
+yarn-error.log*
