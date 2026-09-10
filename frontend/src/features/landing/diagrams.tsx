@@ -109,18 +109,18 @@ export function ArchitectureDiagram() {
  */
 export function RequestFlowDiagram() {
   const steps = [
-    { title: 'POST /hotels/7/rooms', sub: 'Junior · Triple · 12' },
+    { title: 'POST /rooms', sub: 'Junior · Triple · 12' },
     { title: 'FormRequest', sub: 'campos y tipos' },
-    { title: 'SELECT … FOR UPDATE', sub: 'bloquea el hotel' },
+    { title: 'FOR UPDATE', sub: 'bloquea el hotel' },
     { title: 'Regla 1', sub: '¿acomodación válida?' },
     { title: 'Regla 2', sub: '¿combinación repetida?' },
     { title: 'Regla 3', sub: '¿cabe en el máximo?' },
     { title: 'INSERT + COMMIT', sub: '201 Created' },
   ]
-  const w = 112, gap = 12, x0 = 16, y = 40, h = 52
+  const w = 132, gap = 10, x0 = 12, y = 40, h = 52
 
   return (
-    <svg viewBox="0 0 900 200" role="img" aria-labelledby="flow-title" className="h-auto w-full">
+    <svg viewBox="0 0 1000 200" role="img" aria-labelledby="flow-title" className="h-auto w-full">
       <title id="flow-title">Flujo de una asignación de habitaciones con sus tres puntos de rechazo</title>
       <Defs />
       {steps.map((s, i) => {
@@ -136,7 +136,7 @@ export function RequestFlowDiagram() {
             {isRule && (
               <g>
                 <line x1={x + w / 2} y1={y + h + 2} x2={x + w / 2} y2={y + h + 30} className="stroke-danger" strokeWidth={1.5} strokeDasharray="3 3" markerEnd="url(#arrow)" />
-                <rect x={x + 6} y={y + h + 32} width={w - 12} height={40} rx={8} className="fill-danger-soft stroke-danger/40" strokeWidth={1} />
+                <rect x={x} y={y + h + 32} width={w} height={40} rx={8} className="fill-danger-soft stroke-danger/40" strokeWidth={1} />
                 <text x={x + w / 2} y={y + h + 49} textAnchor="middle" className="fill-danger text-[11px] font-semibold">
                   {i === 3 ? '422' : i === 4 ? '409' : '422'}
                 </text>
@@ -148,7 +148,7 @@ export function RequestFlowDiagram() {
           </g>
         )
       })}
-      <text x={450} y={180} textAnchor="middle" className="fill-ink-3 text-[10.5px] italic">
+      <text x={500} y={180} textAnchor="middle" className="fill-ink-3 text-[10.5px] italic">
         Todo ocurre dentro de una transacción: si cualquier regla falla, no se escribe nada y el bloqueo se libera.
       </text>
     </svg>
