@@ -20,18 +20,24 @@ import {
   ACCOMMODATION_MATRIX,
   BACKEND_STACK,
   CHALLENGE,
+  DELIVERABLES,
   EXTRAS,
   FRONTEND_STACK,
   HERO,
+  INSTALL_STEPS,
   PATTERNS,
   PERSISTENCE,
   PROCESS,
   QUALITY_STATS,
+  REQUIREMENTS,
   SECURITY,
   SOLID,
+  TROUBLESHOOTING,
+  VERIFY_CHECKLIST,
   type TechItem,
 } from '@/features/landing/content'
 import { ArchitectureDiagram, AuthFlowDiagram, ErDiagram, RequestFlowDiagram } from '@/features/landing/diagrams'
+import { CommandBlock } from '@/shared/components/CommandBlock'
 import { Container } from '@/shared/components/Container'
 import { GithubIcon } from '@/shared/components/GithubIcon'
 
@@ -61,6 +67,8 @@ export function LandingPage() {
         <Security />
         <Persistence />
         <Process />
+        <Installation />
+        <Deliverables />
         <FinalCta />
       </Container>
     </div>
@@ -356,6 +364,112 @@ function Process() {
           </div>
         ))}
       </div>
+    </Section>
+  )
+}
+
+function Installation() {
+  return (
+    <Section
+      id="instalacion"
+      eyebrow="Cómo ejecutarlo"
+      title="Paso a paso, sin dar nada por sabido"
+      lead="El enunciado pide la guía «como si su abuelita quisiera realizar el despliegue». Ésta es: cinco pasos, cada orden lista para copiar y, tras cada uno, qué debería verse en pantalla. La versión extendida, con la instalación de cada requisito, está en INSTALL.md."
+    >
+      <div className="space-y-10">
+        <div>
+          <h3 className="mb-4 text-sm font-semibold text-ink">Antes de empezar, cuatro programas</h3>
+          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {REQUIREMENTS.map((r) => (
+              <li key={r.name} className="card p-4">
+                <p className="font-semibold text-ink">{r.name}</p>
+                <p className="mt-1 text-sm text-ink-2">{r.note}</p>
+                <p className="mt-3 rounded-md bg-surface-2 px-2 py-1 font-mono text-xs text-ink-2">{r.check}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <ol className="space-y-6">
+          {INSTALL_STEPS.map((step, i) => (
+            <li key={step.title} className="card grid gap-5 p-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
+              <div>
+                <div className="flex items-center gap-3">
+                  <span className="grid size-9 shrink-0 place-items-center rounded-full bg-accent font-mono text-sm font-bold text-accent-ink" aria-hidden="true">{i + 1}</span>
+                  <h3 className="text-lg font-semibold text-ink">{step.title}</h3>
+                </div>
+                <p className="mt-3 text-sm leading-relaxed text-ink-2">{step.detail}</p>
+                {step.expect && (
+                  <p className="mt-3 flex items-start gap-2 rounded-lg bg-success-soft px-3 py-2 text-sm text-ink">
+                    <Check className="mt-0.5 size-4 shrink-0 text-success" aria-hidden="true" />
+                    <span>{step.expect}</span>
+                  </p>
+                )}
+              </div>
+              {step.commands ? (
+                <CommandBlock commands={step.commands} />
+              ) : (
+                <div className="flex items-center justify-center rounded-xl bg-surface-2 p-6 text-center text-sm text-ink-2">
+                  Sin órdenes: este paso se hace en el navegador. Credenciales de prueba: <code className="mx-1 rounded bg-surface px-1.5 py-0.5 font-mono text-xs text-ink">gerente@decameron.test</code> / <code className="mx-1 rounded bg-surface px-1.5 py-0.5 font-mono text-xs text-ink">decameron2026</code>
+                </div>
+              )}
+            </li>
+          ))}
+        </ol>
+
+        <div className="grid gap-6 lg:grid-cols-2">
+          <div className="card p-6">
+            <h3 className="font-semibold text-ink">Lista de comprobación</h3>
+            <p className="mt-1 text-sm text-ink-2">Si estas cinco cosas se cumplen, la instalación está bien y las reglas del negocio funcionan.</p>
+            <ul className="mt-4 space-y-2.5">
+              {VERIFY_CHECKLIST.map((item) => (
+                <li key={item} className="flex items-start gap-2.5 text-sm text-ink-2">
+                  <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded border border-line-strong" aria-hidden="true" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="card p-6">
+            <h3 className="font-semibold text-ink">Si algo sale mal</h3>
+            <p className="mt-1 text-sm text-ink-2">Los cuatro tropiezos más habituales y cómo salir de ellos.</p>
+            <dl className="mt-4 space-y-3">
+              {TROUBLESHOOTING.map((t) => (
+                <div key={t.problem}>
+                  <dt className="text-sm font-semibold text-ink">{t.problem}</dt>
+                  <dd className="mt-0.5 text-sm text-ink-2">{t.fix}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </div>
+      </div>
+    </Section>
+  )
+}
+
+function Deliverables() {
+  return (
+    <Section
+      id="entregables"
+      eyebrow="Entregables"
+      title="Todo lo que pide el enunciado, en un solo sitio"
+      lead="Código en repositorio público, documentación con diagramas UML, dump de la base de datos listo para instalar y guía de despliegue. Cada uno enlazado desde aquí."
+    >
+      <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {DELIVERABLES.map((d) => {
+          const href = d.href === '__API_DOCS__' ? API_DOCS_URL : d.href
+          return (
+            <li key={d.title} className="card flex flex-col p-5">
+              <h3 className="font-semibold text-ink">{d.title}</h3>
+              <p className="mt-2 flex-1 text-sm text-ink-2">{d.detail}</p>
+              <a href={href} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-accent hover:underline">
+                {d.label} <ArrowRight className="size-3.5" aria-hidden="true" />
+              </a>
+            </li>
+          )
+        })}
+      </ul>
     </Section>
   )
 }

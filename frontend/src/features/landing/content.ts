@@ -160,6 +160,96 @@ export const PROCESS = [
   { step: '05', title: 'Automaticé la verificación', detail: 'Estilo, análisis estático, 163 pruebas y compilación en cada push. Un fallo impide integrar.' },
 ]
 
+/**
+ * Guía de ejecución, paso a paso.
+ *
+ * El enunciado pide el paso a paso «como si su abuelita quisiera realizar el
+ * despliegue». Está aquí, en la propia página, además de en INSTALL.md: quien
+ * evalúa no debería tener que salir a buscarlo.
+ */
+export interface InstallStep {
+  title: string
+  detail: string
+  commands?: string[]
+  expect?: string
+}
+
+export const REQUIREMENTS = [
+  { name: 'PHP 8.2+', check: 'php --version', note: 'Con las extensiones pdo_pgsql y pgsql activas en php.ini' },
+  { name: 'Composer 2', check: 'composer --version', note: 'Gestor de dependencias de PHP' },
+  { name: 'Node.js 20+', check: 'node --version', note: 'Para compilar y servir la interfaz' },
+  { name: 'PostgreSQL 17', check: 'psql --version', note: 'La base de datos; anote la contraseña que elija al instalar' },
+]
+
+export const INSTALL_STEPS: InstallStep[] = [
+  {
+    title: 'Descargar el proyecto',
+    detail: 'Abra una terminal, sitúese donde quiera guardarlo y clone el repositorio. Si no tiene Git, descárguelo como ZIP desde GitHub y descomprímalo.',
+    commands: ['git clone https://github.com/ingealex11/prueba-tecnica-decameron.git', 'cd prueba-tecnica-decameron'],
+    expect: 'Debería ver las carpetas backend, frontend, database y docs.',
+  },
+  {
+    title: 'Crear la base de datos',
+    detail: 'Con PostgreSQL instalado, cree un usuario y dos bases: una de trabajo y otra para las pruebas. Al pedir contraseña, escríbala aunque no se vea nada en pantalla.',
+    commands: [
+      'psql -U postgres -c "CREATE ROLE decameron WITH LOGIN PASSWORD \'decameron_2026\' CREATEDB"',
+      'psql -U postgres -c "CREATE DATABASE decameron OWNER decameron"',
+      'psql -U postgres -c "CREATE DATABASE decameron_testing OWNER decameron"',
+    ],
+    expect: 'Debería ver CREATE ROLE y dos veces CREATE DATABASE.',
+  },
+  {
+    title: 'Poner en marcha el backend',
+    detail: 'Entre en la carpeta backend, instale las dependencias, cree la configuración, genere la clave, cree las tablas con los datos de ejemplo y arranque el servidor. Deje esta terminal abierta.',
+    commands: [
+      'cd backend',
+      'composer install',
+      'cp .env.example .env',
+      'php artisan key:generate',
+      'php artisan migrate --seed',
+      'php artisan serve',
+    ],
+    expect: 'Debería ver: Server running on http://127.0.0.1:8000',
+  },
+  {
+    title: 'Poner en marcha el frontend',
+    detail: 'En una segunda terminal, entre en la carpeta frontend, instale las dependencias, cree la configuración y arranque.',
+    commands: ['cd frontend', 'npm install', 'cp .env.example .env', 'npm run dev'],
+    expect: 'Debería ver: Local: http://localhost:5173/',
+  },
+  {
+    title: 'Abrir y comprobar',
+    detail: 'Visite localhost:5173 en Chrome o Firefox. Pulse «Entrar a la aplicación», rellene las credenciales de prueba con el botón, use el código que aparece en pantalla y entre al panel.',
+    expect: 'Decameron Cartagena debe mostrar 42 / 42 y la etiqueta Completo: es el hotel del ejemplo del enunciado.',
+  },
+]
+
+export const VERIFY_CHECKLIST = [
+  'El panel muestra cuatro hoteles y un mapa con cuatro marcadores.',
+  'En Decameron Galeón, al asignar habitaciones y elegir Junior, sólo aparecen Triple y Cuádruple.',
+  'Al cambiar a Estándar, sólo aparecen Sencilla y Doble, con Doble bloqueada porque ya está configurada.',
+  'Al pedir 50 habitaciones con 38 libres, el servidor responde: sólo quedan 38 disponibles.',
+  'En localhost:8000/docs/api se ve la documentación interactiva con 16 operaciones.',
+]
+
+export const TROUBLESHOOTING = [
+  { problem: '«could not find driver»', fix: 'Falta la extensión de PostgreSQL en PHP. En php.ini quite el punto y coma de extension=pdo_pgsql y extension=pgsql, y reinicie la terminal.' },
+  { problem: '«Connection refused»', fix: 'PostgreSQL no está en marcha. En Windows, inicie el servicio postgresql-x64-17 desde Servicios; en macOS, brew services start postgresql@17.' },
+  { problem: 'La página carga pero no aparece ningún hotel', fix: 'El frontend no llega al backend. Compruebe que la terminal de php artisan serve sigue abierta y que frontend/.env apunta a http://localhost:8000/api/v1.' },
+  { problem: 'Quiero empezar de cero', fix: 'Desde backend: php artisan migrate:fresh --seed. Borra todo y vuelve a crear los datos de ejemplo.' },
+]
+
+export const DELIVERABLES = [
+  { title: 'Código fuente', detail: 'Repositorio público en GitHub con historial de commits que explica cada decisión.', href: 'https://github.com/ingealex11/prueba-tecnica-decameron', label: 'Ver repositorio' },
+  { title: 'Guía de instalación', detail: 'INSTALL.md: el paso a paso completo, con qué debería verse tras cada orden y qué hacer si algo falla.', href: 'https://github.com/ingealex11/prueba-tecnica-decameron/blob/main/INSTALL.md', label: 'Leer INSTALL.md' },
+  { title: 'Documentación técnica', detail: 'README con arquitectura, patrones, principios SOLID, seguridad, persistencia y trazabilidad con cada criterio del enunciado.', href: 'https://github.com/ingealex11/prueba-tecnica-decameron/blob/main/README.md', label: 'Leer README' },
+  { title: 'Diagramas UML', detail: 'Entidad-relación, componentes, clases del dominio y secuencia de una asignación, en Mermaid renderizable en GitHub.', href: 'https://github.com/ingealex11/prueba-tecnica-decameron/tree/main/docs/uml', label: 'Ver diagramas' },
+  { title: 'Dump de la base de datos', detail: 'Esquema, datos y volcado completo listos para restaurar con psql. Verificado sobre una base limpia.', href: 'https://github.com/ingealex11/prueba-tecnica-decameron/tree/main/database/dump', label: 'Ver dumps' },
+  { title: 'Documentación OpenAPI', detail: 'Referencia interactiva de la API, generada desde el código, con consola para probar cada endpoint.', href: '__API_DOCS__', label: 'Abrir /docs/api' },
+  { title: 'Colección de Postman', detail: 'Todas las peticiones, incluidas las que deben fallar, con pruebas que comprueban el código HTTP esperado.', href: 'https://github.com/ingealex11/prueba-tecnica-decameron/blob/main/docs/api/decameron.postman_collection.json', label: 'Descargar colección' },
+  { title: 'Backlog SCRUM', detail: 'Trece historias de usuario con criterios de aceptación, definition of done y trazabilidad con el enunciado.', href: 'https://github.com/ingealex11/prueba-tecnica-decameron/blob/main/docs/scrum/product-backlog.md', label: 'Ver backlog' },
+]
+
 export const QUALITY_STATS = [
   { label: 'Pruebas', value: '163', note: '113 backend · 50 frontend' },
   { label: 'Análisis estático', value: 'Nivel 6', note: 'sin errores silenciados' },

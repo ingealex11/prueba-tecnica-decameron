@@ -34,6 +34,8 @@ export function PublicLayout() {
               ['#reglas', 'Reglas'],
               ['#seguridad', 'Seguridad'],
               ['#calidad', 'Calidad'],
+              ['#instalacion', 'Instalación'],
+              ['#entregables', 'Entregables'],
             ].map(([href, label]) => (
               <a key={href} href={href} className="rounded-lg px-3 py-1.5 text-sm text-ink-2 transition-colors hover:bg-surface-2 hover:text-ink">
                 {label}
