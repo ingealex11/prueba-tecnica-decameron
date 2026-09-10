@@ -1,5 +1,7 @@
 import axios, { AxiosError, type AxiosInstance } from 'axios'
 
+import { announceSessionExpired, session } from '@/features/auth/session'
+
 import type { ApiError } from './types'
 
 /**
@@ -98,6 +100,16 @@ httpClient.interceptors.response.use(
 
     const { status, data } = error.response
 
+    // Un 401 con token significa que el servidor dejó de reconocerlo: caducó
+    // o se revocó desde otro dispositivo. Se avisa para que la aplicación
+    // limpie la sesión y vuelva al inicio de sesión. Se excluyen las rutas de
+    // autenticación: un 401 al iniciar sesión es "credenciales incorrectas",
+    // no "sesión caducada".
+    const isAuthRoute = (error.config?.url ?? '').includes('/auth/')
+    if (status === 401 && session.token() && !isAuthRoute) {
+      announceSessionExpired()
+    }
+
     // El servidor respondió, pero no con la envoltura esperada. Ocurre, por
     // ejemplo, si un proxy intermedio devuelve su propia página de error.
     if (!data || typeof data !== 'object' || !('error_code' in data)) {
@@ -123,14 +135,14 @@ httpClient.interceptors.response.use(
 )
 
 /**
- * Adjunta el token de autenticación cuando la API lo exige.
+ * Adjunta el token de la sesión a cada petición.
  *
- * El backend entrega la autenticación desactivada por defecto, de modo que en
- * la demo este interceptor no añade nada. Existe para que activarla sea sólo
- * cuestión de definir la variable de entorno, sin tocar código.
+ * Se lee del almacén de sesión en cada petición, no una sola vez al crear el
+ * cliente: así el token recién obtenido al iniciar sesión se usa de inmediato
+ * sin recrear nada, y al cerrar sesión deja de enviarse al instante.
  */
 httpClient.interceptors.request.use((config) => {
-  const token = import.meta.env.VITE_API_TOKEN
+  const token = session.token() ?? import.meta.env.VITE_API_TOKEN
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`

@@ -1,43 +1,66 @@
+import {
+  ArrowRight,
+  BookOpenText,
+  Check,
+  Database,
+  FlaskConical,
+  KeyRound,
+  Layers,
+  Lock,
+  MapPin,
+  Minus,
+  ShieldCheck,
+  Sparkles,
+  Workflow,
+} from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
 import {
   ACCOMMODATION_MATRIX,
   BACKEND_STACK,
+  CHALLENGE,
+  EXTRAS,
   FRONTEND_STACK,
+  HERO,
   PATTERNS,
   PERSISTENCE,
-  QUALITY,
+  PROCESS,
+  QUALITY_STATS,
   SECURITY,
   SOLID,
+  type TechItem,
 } from '@/features/landing/content'
+import { ArchitectureDiagram, AuthFlowDiagram, ErDiagram, RequestFlowDiagram } from '@/features/landing/diagrams'
 import { Container } from '@/shared/components/Container'
+import { GithubIcon } from '@/shared/components/GithubIcon'
+
+const REPO_URL = 'https://github.com/ingealex11/prueba-tecnica-decameron'
+const API_DOCS_URL = (import.meta.env.VITE_API_URL ?? 'http://localhost:8000/api/v1').replace(/\/api\/v1\/?$/, '/docs/api')
 
 /**
  * Página de presentación del proyecto.
  *
- * Su propósito es que quien evalúe la prueba entienda las decisiones técnicas
- * sin tener que leer todo el código, y llegue a la aplicación funcional con un
- * clic. Explica el problema, la arquitectura, los patrones aplicados, cómo se
- * resolvieron la seguridad y la persistencia, y cómo se verifica todo ello.
+ * Escrita en primera persona: explico qué me pidieron, qué decidí y por qué,
+ * con diagramas en lugar de listas, y con acceso directo a la aplicación, a la
+ * documentación de la API y al repositorio.
  */
 export function LandingPage() {
   return (
-    <div className="pb-12">
-      {/* La cabecera ocupa el ancho completo de la ventana; el resto del
-          contenido se centra dentro del contenedor de la aplicación. */}
+    <div className="pb-16">
       <Hero />
-
-      <Container className="space-y-16 py-16 sm:space-y-20 sm:py-20">
+      <Container className="space-y-24 py-20 sm:space-y-28">
         <Challenge />
-        <BusinessRules />
         <Architecture />
+        <BusinessRules />
+        <Auth />
+        <DataModel />
         <Stack />
         <Patterns />
         <SolidPrinciples />
         <Security />
         <Persistence />
-        <Quality />
+        <Process />
         <FinalCta />
       </Container>
     </div>
@@ -45,103 +68,99 @@ export function LandingPage() {
 }
 
 // ---------------------------------------------------------------------------
-// Secciones
-// ---------------------------------------------------------------------------
 
 function Hero() {
   return (
-    <section className="bg-gradient-to-br from-brand-900 via-brand-800 to-brand-950 px-4 py-16 text-white sm:px-6 sm:py-24">
-      <div className="mx-auto max-w-3xl text-center">
-        <p className="mb-4 inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-medium uppercase tracking-wider ring-1 ring-white/20">
-          Prueba técnica · Desarrollador PHP
-        </p>
+    <section className="relative overflow-hidden bg-sidebar text-white">
+      <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+        <div className="absolute -left-40 -top-40 size-[36rem] rounded-full bg-brand-600/40 blur-3xl" />
+        <div className="absolute -bottom-48 right-[-10rem] size-[34rem] rounded-full bg-teal-500/20 blur-3xl" />
+        <svg className="absolute inset-0 h-full w-full opacity-[0.05]">
+          <defs>
+            <pattern id="hero-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M40 0H0V40" fill="none" stroke="white" strokeWidth="1" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#hero-grid)" />
+        </svg>
+      </div>
 
-        <h1 className="text-3xl font-bold leading-tight sm:text-5xl">
-          Sistema de Gestión Hotelera
-        </h1>
+      <Container className="relative grid gap-12 py-20 lg:grid-cols-[1.15fr_1fr] lg:items-center lg:py-28">
+        <div className="max-w-2xl animate-fade-up">
+          <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium uppercase tracking-wider ring-1 ring-white/15">
+            <Sparkles className="size-3.5 text-teal-400" aria-hidden="true" />
+            {HERO.eyebrow}
+          </p>
+          <h1 className="mt-6 text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl lg:text-[3.4rem]">{HERO.title}</h1>
+          <p className="mt-6 text-lg leading-relaxed text-white/70">{HERO.lead}</p>
 
-        <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-brand-100 sm:text-lg">
-          Aplicación web para administrar el inventario de hoteles de Decameron
-          Colombia y la configuración de habitaciones de cada uno, haciendo
-          cumplir por diseño las reglas del negocio.
-        </p>
-
-        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Link
-            to="/app"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-white px-6 py-3 text-sm font-semibold text-brand-800 shadow-lg transition-transform hover:scale-[1.02] sm:w-auto"
-          >
-            Abrir la aplicación
-            <span aria-hidden="true">→</span>
-          </Link>
-
-          <a
-            href="#arquitectura"
-            className="inline-flex w-full items-center justify-center rounded-lg px-6 py-3 text-sm font-semibold text-white ring-1 ring-inset ring-white/30 transition-colors hover:bg-white/10 sm:w-auto"
-          >
-            Ver la arquitectura
-          </a>
+          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <Link to="/login" className="inline-flex h-12 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-white px-6 text-sm font-semibold text-sidebar shadow-lg shadow-black/20 transition-transform hover:scale-[1.02]">
+              Entrar a la aplicación
+              <ArrowRight className="size-4" aria-hidden="true" />
+            </Link>
+            <a href={API_DOCS_URL} target="_blank" rel="noreferrer" className="inline-flex h-12 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-6 text-sm font-semibold text-white ring-1 ring-inset ring-white/25 transition-colors hover:bg-white/10">
+              <BookOpenText className="size-4" aria-hidden="true" />
+              Documentación de la API
+            </a>
+            <a href={REPO_URL} target="_blank" rel="noreferrer" className="inline-flex h-12 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-6 text-sm font-semibold text-white ring-1 ring-inset ring-white/25 transition-colors hover:bg-white/10">
+              <GithubIcon className="size-4" />
+              Código fuente
+            </a>
+          </div>
         </div>
 
-        <dl className="mx-auto mt-12 grid max-w-2xl grid-cols-2 gap-4 sm:grid-cols-4">
-          {QUALITY.map((item) => (
-            <div key={item.label} className="rounded-lg bg-white/5 p-3 ring-1 ring-white/10">
-              <dt className="text-[0.7rem] uppercase tracking-wide text-brand-200">
-                {item.label}
-              </dt>
-              <dd className="mt-1 text-lg font-bold leading-tight">{item.value}</dd>
+        <dl className="grid grid-cols-2 gap-3 animate-fade-up [animation-delay:120ms]">
+          {QUALITY_STATS.map((s) => (
+            <div key={s.label} className="rounded-2xl bg-white/[0.06] p-5 ring-1 ring-white/10 backdrop-blur">
+              <dt className="text-[0.7rem] font-semibold uppercase tracking-wider text-white/50">{s.label}</dt>
+              <dd className="mt-2 text-3xl font-bold tracking-tight">{s.value}</dd>
+              <dd className="mt-1 text-xs text-white/55">{s.note}</dd>
             </div>
           ))}
         </dl>
-      </div>
+      </Container>
     </section>
   )
 }
 
 function Challenge() {
   return (
-    <Section
-      id="reto"
-      eyebrow="El problema"
-      title="Qué pide el negocio"
-      lead="El gerente de operaciones hoteleras necesita registrar los hoteles de la compañía con sus datos tributarios, y asignar a cada uno tipos de habitación con su acomodación, sin que jamás se produzcan configuraciones inválidas."
-    >
-      <ul className="grid gap-4 sm:grid-cols-2">
-        {[
-          {
-            title: 'Hoteles sin duplicar',
-            detail: 'Nombre y NIT únicos en toda la compañía.',
-          },
-          {
-            title: 'Acomodación acorde al tipo',
-            detail: 'Cada tipo de habitación admite unas acomodaciones concretas y ninguna otra.',
-          },
-          {
-            title: 'Sin combinaciones repetidas',
-            detail: 'Un hotel no puede tener dos veces el mismo tipo con la misma acomodación.',
-          },
-          {
-            title: 'Capacidad respetada',
-            detail: 'La suma de habitaciones configuradas nunca supera el máximo del hotel.',
-          },
-          {
-            title: 'Catálogos sin administración',
-            detail: 'Ciudades, tipos y acomodaciones son datos fijos, sin pantallas de gestión.',
-          },
-          {
-            title: 'Portátiles de 13 y 15 pulgadas',
-            detail: 'La interfaz se diseñó para el equipo que los gerentes usan realmente.',
-          },
-        ].map((item) => (
-          <li
-            key={item.title}
-            className="rounded-lg bg-white p-4 shadow-sm ring-1 ring-slate-200"
-          >
-            <p className="font-semibold text-slate-900">{item.title}</p>
-            <p className="mt-1 text-sm text-slate-600">{item.detail}</p>
-          </li>
-        ))}
-      </ul>
+    <Section id="reto" eyebrow="El reto" title="Qué me pidieron y qué añadí" lead="El enunciado define un CRUD de hoteles y habitaciones con tres reglas de negocio. Lo cumplí todo, y aproveché para añadir lo que un sistema así necesita cuando sale de la prueba y entra en operación.">
+      <div className="grid gap-8 lg:grid-cols-2">
+        <div>
+          <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-ink"><Check className="size-4 text-success" aria-hidden="true" /> Lo que exige el enunciado</h3>
+          <ul className="grid gap-3 sm:grid-cols-2">
+            {CHALLENGE.map((item) => (
+              <li key={item.title} className="card p-4">
+                <p className="font-semibold text-ink">{item.title}</p>
+                <p className="mt-1 text-sm text-ink-2">{item.detail}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-ink"><Sparkles className="size-4 text-accent" aria-hidden="true" /> Lo que añadí por iniciativa propia</h3>
+          <ul className="grid gap-3 sm:grid-cols-2">
+            {EXTRAS.map((item) => (
+              <li key={item.title} className="rounded-card bg-accent/[0.06] p-4 ring-1 ring-accent/20">
+                <p className="font-semibold text-ink">{item.title}</p>
+                <p className="mt-1 text-sm text-ink-2">{item.detail}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </Section>
+  )
+}
+
+function Architecture() {
+  return (
+    <Section id="arquitectura" eyebrow="Arquitectura" title="Dos aplicaciones desacopladas y un dominio que no conoce el framework" lead="Frontend y backend se despliegan por separado y sólo comparten un contrato HTTP/JSON. Dentro del backend, las dependencias apuntan hacia el dominio: podría exponer las mismas reglas por consola o por GraphQL sin tocar una línea de lógica.">
+      <Figure caption="Cada capa responde a una pregunta distinta. El FormRequest pregunta si la petición está bien formada; el Service, si tiene sentido en el negocio. Mezclarlas habría sido más corto y habría dejado las reglas fuera del alcance de cualquier proceso que no fuera HTTP.">
+        <ArchitectureDiagram />
+      </Figure>
     </Section>
   )
 }
@@ -150,191 +169,89 @@ function BusinessRules() {
   const { accommodations, types } = ACCOMMODATION_MATRIX
 
   return (
-    <Section
-      id="reglas"
-      eyebrow="Regla central"
-      title="Qué acomodación admite cada tipo"
-      lead="Esta matriz gobierna todo el sistema. Vive codificada como clases de estrategia en el dominio, y de ahí se deriva la tabla de catálogo que consulta la interfaz: una sola fuente de verdad, nunca dos copias que puedan divergir."
-    >
-      <div className="overflow-x-auto rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
-        <table className="w-full min-w-125 text-sm">
-          <caption className="sr-only">
-            Acomodaciones permitidas para cada tipo de habitación
-          </caption>
-          <thead>
-            <tr className="border-b border-slate-200">
-              <th scope="col" className="px-4 py-3 text-left font-semibold text-slate-700">
-                Tipo de habitación
-              </th>
-              {accommodations.map((accommodation) => (
-                <th
-                  key={accommodation}
-                  scope="col"
-                  className="px-4 py-3 text-center font-semibold text-slate-700"
-                >
-                  {accommodation}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {types.map((type) => (
-              <tr key={type.name}>
-                <th scope="row" className="px-4 py-3 text-left font-medium text-slate-900">
-                  {type.name}
-                </th>
-                {type.allowed.map((isAllowed, index) => (
-                  <td key={accommodations[index]} className="px-4 py-3 text-center">
-                    {/* El texto accesible acompaña siempre al símbolo: el color
-                        y el icono por sí solos no comunican a todo el mundo. */}
-                    <span
-                      className={
-                        isAllowed
-                          ? 'inline-flex size-7 items-center justify-center rounded-full bg-emerald-50 text-emerald-600'
-                          : 'inline-flex size-7 items-center justify-center rounded-full bg-slate-50 text-slate-300'
-                      }
-                    >
-                      <span aria-hidden="true">{isAllowed ? '✓' : '—'}</span>
-                      <span className="sr-only">
-                        {isAllowed ? 'Permitida' : 'No permitida'}
-                      </span>
-                    </span>
-                  </td>
+    <Section id="reglas" eyebrow="Reglas de negocio" title="Tres reglas, una transacción y tres puntos de rechazo" lead="La regla central del enunciado —qué acomodación admite cada tipo— la modelé con el patrón Strategy: una clase por tipo. La tabla de catálogo se deriva de esas clases, y el frontend la consulta para ofrecer sólo opciones válidas. Una sola fuente de verdad.">
+      <div className="space-y-8">
+        <div className="card max-w-2xl overflow-hidden">
+          <table className="w-full text-sm">
+            <caption className="sr-only">Acomodaciones permitidas para cada tipo de habitación</caption>
+            <thead>
+              <tr className="border-b border-line bg-surface-2/60">
+                <th scope="col" className="eyebrow px-4 py-3 text-left">Tipo</th>
+                {accommodations.map((a) => (
+                  <th key={a} scope="col" className="eyebrow px-2 py-3 text-center">{a}</th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody className="divide-y divide-line">
+              {types.map((t) => (
+                <tr key={t.name}>
+                  <th scope="row" className="px-4 py-3 text-left font-medium text-ink">{t.name}</th>
+                  {t.allowed.map((ok, i) => (
+                    <td key={accommodations[i]} className="px-2 py-3 text-center">
+                      <span className={ok ? 'inline-grid size-7 place-items-center rounded-full bg-success-soft text-success' : 'inline-grid size-7 place-items-center rounded-full bg-surface-2 text-ink-3'}>
+                        {ok ? <Check className="size-4" aria-hidden="true" /> : <Minus className="size-4" aria-hidden="true" />}
+                        <span className="sr-only">{ok ? 'Permitida' : 'No permitida'}</span>
+                      </span>
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <p className="border-t border-line px-4 py-3 text-xs text-ink-3">Probé las doce combinaciones: las siete válidas y las cinco que deben rechazarse.</p>
+        </div>
 
-      <p className="mt-4 text-sm text-slate-600">
-        En la aplicación esta regla no se enuncia: se hace cumplir. Al elegir un
-        tipo de habitación, el selector de acomodación ofrece únicamente las
-        opciones válidas, y el servidor vuelve a comprobarlo antes de escribir
-        nada.
-      </p>
+        <Figure caption="La validación de capacidad es un leer-modificar-escribir. Sin el bloqueo, dos peticiones simultáneas podrían superar juntas el máximo entre la lectura y la escritura.">
+          <RequestFlowDiagram />
+        </Figure>
+      </div>
     </Section>
   )
 }
 
-function Architecture() {
+function Auth() {
   return (
-    <Section
-      id="arquitectura"
-      eyebrow="Arquitectura"
-      title="Backend y frontend desacoplados"
-      lead="Son dos aplicaciones independientes, con su propio ciclo de vida y su propio despliegue. El único contrato entre ellas es HTTP con JSON."
-    >
-      <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6">
-        <ol className="space-y-3">
-          {[
-            {
-              layer: 'Rutas y middleware',
-              detail: 'CORS, límite de peticiones, autenticación opcional y cabeceras de seguridad.',
-            },
-            {
-              layer: 'Controlador',
-              detail: 'Traduce HTTP y delega. No contiene ni una regla de negocio.',
-            },
-            {
-              layer: 'FormRequest',
-              detail: '¿Está bien formada la petición? Tipos, obligatoriedad y formato.',
-            },
-            {
-              layer: 'DTO',
-              detail: 'Objeto inmutable que cruza la frontera hacia el dominio.',
-            },
-            {
-              layer: 'Servicio',
-              detail: '¿Tiene sentido en el negocio? Aquí viven las tres reglas, en transacción con bloqueo.',
-            },
-            {
-              layer: 'Repositorio (interfaz)',
-              detail: 'El dominio declara qué necesita de la persistencia.',
-            },
-            {
-              layer: 'Implementación Eloquent',
-              detail: 'Único punto que sabe que los datos viven en PostgreSQL.',
-            },
-            {
-              layer: 'API Resource',
-              detail: 'Decide qué se expone, protegiendo el contrato público.',
-            },
-          ].map((step, index) => (
-            <li key={step.layer} className="flex gap-4">
-              <span
-                className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-full bg-brand-100 text-xs font-bold text-brand-800"
-                aria-hidden="true"
-              >
-                {index + 1}
-              </span>
-              <div className="min-w-0">
-                <p className="font-medium text-slate-900">{step.layer}</p>
-                <p className="text-sm text-slate-600">{step.detail}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
+    <Section id="autenticacion" eyebrow="Autenticación" title="Saber la contraseña no basta para entrar" lead="El enunciado no pedía login. Lo añadí porque un sistema con datos tributarios sin autenticación no es entregable, e implementé el segundo factor de verdad: el código se genera, se cifra, caduca y se verifica en el servidor. En la demostración se muestra en pantalla en lugar de enviarse por SMS; la verificación es la misma.">
+      <Figure caption="Comparo la contraseña incluso cuando el correo no existe, contra un hash ficticio: si no lo hiciera, la respuesta sería más rápida para correos inexistentes y esa diferencia delataría qué cuentas hay.">
+        <AuthFlowDiagram />
+      </Figure>
+    </Section>
+  )
+}
 
-        <p className="mt-6 border-t border-slate-200 pt-5 text-sm text-slate-600">
-          <strong className="font-semibold text-slate-900">
-            Las dependencias apuntan hacia adentro.
-          </strong>{' '}
-          El dominio no importa nada de HTTP ni de la infraestructura, así que el
-          mismo núcleo podría exponerse por consola, por una cola de trabajos o
-          por GraphQL sin tocar una línea de lógica.
-        </p>
-      </div>
+function DataModel() {
+  return (
+    <Section id="datos" eyebrow="Modelo de datos" title="Las reglas también viven en el motor" lead="La validación de la aplicación produce buenos mensajes; sólo la base de datos garantiza la invariante frente a escrituras concurrentes o accesos externos. Por eso cada regla está en los dos sitios.">
+      <Figure caption="Una prueba automatizada destapó que los índices únicos corrientes incluían los hoteles con borrado lógico: el nombre de un hotel retirado quedaba bloqueado para siempre. Los cambié por índices parciales.">
+        <ErDiagram />
+      </Figure>
     </Section>
   )
 }
 
 function Stack() {
   return (
-    <Section
-      id="stack"
-      eyebrow="Tecnología"
-      title="Qué se usó y para qué"
-      lead="Cada pieza responde a una necesidad concreta del enunciado, no a una preferencia."
-    >
+    <Section id="stack" eyebrow="Tecnología" title="Qué usé y para qué" lead="Cada pieza responde a una necesidad concreta, no a una preferencia.">
       <div className="grid gap-6 lg:grid-cols-2">
-        <TechColumn title="Backend" items={BACKEND_STACK} tone="brand" />
-        <TechColumn title="Frontend" items={FRONTEND_STACK} tone="accent" />
+        <TechColumn title="Backend" items={BACKEND_STACK} />
+        <TechColumn title="Frontend" items={FRONTEND_STACK} />
       </div>
     </Section>
   )
 }
 
-function TechColumn({
-  title,
-  items,
-  tone,
-}: {
-  title: string
-  items: typeof BACKEND_STACK
-  tone: 'brand' | 'accent'
-}) {
+function TechColumn({ title, items }: { title: string; items: TechItem[] }) {
   return (
-    <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-      <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-500">
-        {title}
-      </h3>
+    <div className="card p-6">
+      <h3 className="eyebrow mb-5">{title}</h3>
       <ul className="space-y-4">
         {items.map((item) => (
-          <li key={item.name}>
-            <div className="flex flex-wrap items-baseline gap-2">
-              <span className="font-semibold text-slate-900">{item.name}</span>
-              <span
-                className={
-                  tone === 'brand'
-                    ? 'rounded bg-brand-50 px-1.5 py-0.5 font-mono text-xs text-brand-700'
-                    : 'rounded bg-cyan-50 px-1.5 py-0.5 font-mono text-xs text-cyan-700'
-                }
-              >
-                {item.version}
-              </span>
+          <li key={item.name} className="flex gap-4">
+            <span className="mt-1 h-fit shrink-0 rounded-md bg-surface-2 px-1.5 py-0.5 font-mono text-[0.7rem] text-ink-2 ring-1 ring-line">{item.version}</span>
+            <div>
+              <p className="font-semibold text-ink">{item.name}</p>
+              <p className="text-sm text-ink-2">{item.role}</p>
             </div>
-            <p className="mt-0.5 text-sm text-slate-600">{item.role}</p>
           </li>
         ))}
       </ul>
@@ -344,27 +261,17 @@ function TechColumn({
 
 function Patterns() {
   return (
-    <Section
-      id="patrones"
-      eyebrow="Patrones de diseño"
-      title="Qué se aplicó y por qué"
-      lead="Un patrón sin motivo es complejidad gratuita. Cada uno de estos resuelve un problema concreto de este sistema."
-    >
-      <div className="grid gap-4 md:grid-cols-2">
-        {PATTERNS.map((pattern) => (
-          <article
-            key={pattern.name}
-            className="flex flex-col rounded-xl bg-white p-5 shadow-sm ring-1 ring-slate-200"
-          >
-            <h3 className="font-semibold text-slate-900">{pattern.name}</h3>
-            <p className="mt-2 text-sm text-slate-600">{pattern.what}</p>
-            <p className="mt-3 flex-1 text-sm text-slate-600">
-              <span className="font-medium text-slate-800">Por qué: </span>
-              {pattern.why}
-            </p>
-            <p className="mt-4 border-t border-slate-100 pt-3 font-mono text-xs text-slate-500">
-              {pattern.where}
-            </p>
+    <Section id="patrones" eyebrow="Patrones de diseño" title="Cada patrón resuelve un problema concreto de este sistema" lead="Un patrón sin motivo es complejidad gratuita. Éstos son los que apliqué y qué me dio cada uno.">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {PATTERNS.map((p) => (
+          <article key={p.name} className="card flex flex-col p-5">
+            <div className="flex items-center gap-2">
+              <span className="grid size-8 place-items-center rounded-lg bg-accent/10 text-accent" aria-hidden="true"><Layers className="size-4" /></span>
+              <h3 className="font-semibold text-ink">{p.name}</h3>
+            </div>
+            <p className="mt-3 text-sm text-ink-2">{p.what}</p>
+            <p className="mt-3 flex-1 text-sm text-ink-2"><span className="font-medium text-ink">Por qué: </span>{p.why}</p>
+            <p className="mt-4 border-t border-line pt-3 font-mono text-[0.7rem] leading-relaxed text-ink-3">{p.where}</p>
           </article>
         ))}
       </div>
@@ -374,27 +281,14 @@ function Patterns() {
 
 function SolidPrinciples() {
   return (
-    <Section
-      id="solid"
-      eyebrow="Principios SOLID"
-      title="Aplicados, no citados"
-      lead="Cada principio con el punto exacto del código donde se materializa."
-    >
-      <ul className="space-y-3">
-        {SOLID.map((principle) => (
-          <li
-            key={principle.letter}
-            className="flex gap-4 rounded-xl bg-white p-5 shadow-sm ring-1 ring-slate-200"
-          >
-            <span
-              className="grid size-10 shrink-0 place-items-center rounded-lg bg-brand-700 text-lg font-bold text-white"
-              aria-hidden="true"
-            >
-              {principle.letter}
-            </span>
-            <div className="min-w-0">
-              <h3 className="font-semibold text-slate-900">{principle.name}</h3>
-              <p className="mt-1 text-sm text-slate-600">{principle.applied}</p>
+    <Section id="solid" eyebrow="Principios SOLID" title="Aplicados, con el archivo que lo demuestra" lead="No los cito: señalo dónde está cada uno en el código.">
+      <ul className="grid gap-3 md:grid-cols-2">
+        {SOLID.map((p) => (
+          <li key={p.letter} className="card flex gap-4 p-5">
+            <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-sidebar text-lg font-bold text-white" aria-hidden="true">{p.letter}</span>
+            <div>
+              <h3 className="font-semibold text-ink">{p.name}</h3>
+              <p className="mt-1 text-sm text-ink-2">{p.applied}</p>
             </div>
           </li>
         ))}
@@ -405,25 +299,15 @@ function SolidPrinciples() {
 
 function Security() {
   return (
-    <Section
-      id="seguridad"
-      eyebrow="Seguridad"
-      title="Defensa en profundidad"
-      lead="Ninguna medida basta por sí sola; el objetivo es que un fallo en una capa no comprometa el sistema entero."
-    >
-      <div className="grid gap-4 sm:grid-cols-2">
-        {SECURITY.map((item) => (
-          <div
-            key={item.title}
-            className="rounded-lg bg-white p-4 shadow-sm ring-1 ring-slate-200"
-          >
-            <h3 className="flex items-center gap-2 font-semibold text-slate-900">
-              <span className="text-emerald-500" aria-hidden="true">
-                🔒
-              </span>
+    <Section id="seguridad" eyebrow="Seguridad" title="Defensa en profundidad" lead="Ninguna medida basta por sí sola; el objetivo es que un fallo en una capa no comprometa el sistema entero.">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {SECURITY.map((item, i) => (
+          <div key={item.title} className="card p-4">
+            <h3 className="flex items-center gap-2 font-semibold text-ink">
+              {i === 0 ? <KeyRound className="size-4 text-accent" aria-hidden="true" /> : <Lock className="size-4 text-success" aria-hidden="true" />}
               {item.title}
             </h3>
-            <p className="mt-1.5 text-sm text-slate-600">{item.detail}</p>
+            <p className="mt-1.5 text-sm text-ink-2">{item.detail}</p>
           </div>
         ))}
       </div>
@@ -433,20 +317,12 @@ function Security() {
 
 function Persistence() {
   return (
-    <Section
-      id="persistencia"
-      eyebrow="Persistencia"
-      title="La base de datos también hace cumplir las reglas"
-      lead="La validación de la aplicación produce buenos mensajes de error; sólo el motor garantiza la invariante frente a escrituras concurrentes."
-    >
-      <div className="grid gap-4 sm:grid-cols-2">
+    <Section id="persistencia" eyebrow="Persistencia" title="Decisiones sobre PostgreSQL que importan" lead="Probé sobre PostgreSQL real, no sobre SQLite en memoria: el esquema usa CHECK, índices parciales y el operador ILIKE, que otro motor no reproduce. Una suite verde sobre otra base no diría nada del comportamiento en producción.">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {PERSISTENCE.map((item) => (
-          <div
-            key={item.title}
-            className="rounded-lg bg-white p-4 shadow-sm ring-1 ring-slate-200"
-          >
-            <h3 className="font-semibold text-slate-900">{item.title}</h3>
-            <p className="mt-1.5 text-sm text-slate-600">{item.detail}</p>
+          <div key={item.title} className="card p-4">
+            <h3 className="flex items-center gap-2 font-semibold text-ink"><Database className="size-4 text-accent" aria-hidden="true" />{item.title}</h3>
+            <p className="mt-1.5 text-sm text-ink-2">{item.detail}</p>
           </div>
         ))}
       </div>
@@ -454,38 +330,29 @@ function Persistence() {
   )
 }
 
-function Quality() {
+function Process() {
   return (
-    <Section
-      id="calidad"
-      eyebrow="Calidad"
-      title="Cómo se verifica que todo esto es cierto"
-      lead="Las afirmaciones anteriores no se sostienen solas: cada una tiene una prueba que la respalda y un pipeline que la ejecuta en cada cambio."
-    >
-      <div className="grid gap-4 md:grid-cols-3">
+    <Section id="calidad" eyebrow="Cómo lo construí" title="Método, no improvisación" lead="Trabajé con SCRUM adaptado a dos sprints: trece historias con criterios de aceptación verificables, definition of done, y trazabilidad de cada criterio del enunciado con la historia y la prueba que lo cubre.">
+      <ol className="relative space-y-6 border-l border-line pl-8">
+        {PROCESS.map((p) => (
+          <li key={p.step} className="relative">
+            <span className="absolute -left-[2.45rem] grid size-8 place-items-center rounded-full bg-accent font-mono text-[0.7rem] font-bold text-accent-ink ring-4 ring-canvas" aria-hidden="true">{p.step}</span>
+            <h3 className="font-semibold text-ink">{p.title}</h3>
+            <p className="mt-1 text-sm text-ink-2">{p.detail}</p>
+          </li>
+        ))}
+      </ol>
+
+      <div className="mt-10 grid gap-4 md:grid-cols-3">
         {[
-          {
-            title: 'Pruebas unitarias',
-            detail:
-              'Las doce combinaciones posibles de tipo y acomodación —las siete válidas y las cinco que deben rechazarse—, los casos frontera de capacidad y una prueba que demuestra el principio Abierto/Cerrado añadiendo un tipo sin modificar código existente.',
-          },
-          {
-            title: 'Pruebas de integración',
-            detail:
-              'Cada endpoint con sus casos de éxito y de rechazo, ejecutados contra PostgreSQL real y no contra SQLite en memoria: el esquema usa CHECK e índices parciales que otro motor no reproduce.',
-          },
-          {
-            title: 'Integración continua',
-            detail:
-              'En cada push y cada pull request: estilo de código, análisis estático, pruebas de backend y frontend, y compilación. Un fallo impide integrar el cambio.',
-          },
-        ].map((item) => (
-          <div
-            key={item.title}
-            className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-slate-200"
-          >
-            <h3 className="font-semibold text-slate-900">{item.title}</h3>
-            <p className="mt-2 text-sm text-slate-600">{item.detail}</p>
+          { icon: FlaskConical, title: 'Pruebas unitarias', detail: 'Las doce combinaciones de tipo y acomodación, los casos frontera de capacidad, y una prueba que añade un tipo nuevo sin modificar código existente.' },
+          { icon: Workflow, title: 'Pruebas de integración', detail: 'Cada endpoint con sus casos de éxito y rechazo, el flujo de autenticación completo, y la protección contra manipular la configuración de un hotel a través de otro.' },
+          { icon: ShieldCheck, title: 'Integración continua', detail: 'Estilo, Larastan nivel 6, 163 pruebas y compilación, en PHP 8.2 y 8.3, en cada push. Sin ignoreErrors ni línea base: silenciar es aplazar.' },
+        ].map(({ icon: Icon, title, detail }) => (
+          <div key={title} className="card p-5">
+            <span className="grid size-9 place-items-center rounded-lg bg-accent/10 text-accent" aria-hidden="true"><Icon className="size-4.5" /></span>
+            <h3 className="mt-3 font-semibold text-ink">{title}</h3>
+            <p className="mt-1.5 text-sm text-ink-2">{detail}</p>
           </div>
         ))}
       </div>
@@ -495,65 +362,51 @@ function Quality() {
 
 function FinalCta() {
   return (
-    <section className="rounded-2xl bg-gradient-to-br from-brand-800 to-brand-950 px-6 py-12 text-center text-white">
-      <h2 className="text-2xl font-bold sm:text-3xl">
-        Probar la aplicación
-      </h2>
-      <p className="mx-auto mt-3 max-w-xl text-brand-100">
-        Incluye el hotel del ejemplo del enunciado, ya configurado con sus 42
-        habitaciones, y otros casos para ver la interfaz en distintos estados.
-      </p>
-      <Link
-        to="/app"
-        className="mt-7 inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3 text-sm font-semibold text-brand-800 shadow-lg transition-transform hover:scale-[1.02]"
-      >
-        Ir al listado de hoteles
-        <span aria-hidden="true">→</span>
-      </Link>
+    <section className="relative overflow-hidden rounded-3xl bg-sidebar px-6 py-14 text-center text-white sm:px-12">
+      <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+        <div className="absolute -left-20 -top-20 size-72 rounded-full bg-brand-600/40 blur-3xl" />
+        <div className="absolute -bottom-24 -right-20 size-80 rounded-full bg-teal-500/20 blur-3xl" />
+      </div>
+      <div className="relative">
+        <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Véalo funcionando</h2>
+        <p className="mx-auto mt-3 max-w-xl text-white/70">
+          Incluye el hotel del ejemplo del enunciado con sus 42 habitaciones ya configuradas, tres sedes más en el mapa y credenciales de prueba visibles en el inicio de sesión.
+        </p>
+        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <Link to="/login" className="inline-flex h-12 items-center gap-2 rounded-xl bg-white px-6 text-sm font-semibold text-sidebar shadow-lg transition-transform hover:scale-[1.02]">
+            Entrar a la aplicación <ArrowRight className="size-4" aria-hidden="true" />
+          </Link>
+          <Link to="/app/mapa" className="inline-flex h-12 items-center gap-2 rounded-xl px-6 text-sm font-semibold text-white ring-1 ring-inset ring-white/25 hover:bg-white/10">
+            <MapPin className="size-4" aria-hidden="true" /> Mapa de sedes
+          </Link>
+        </div>
+      </div>
     </section>
   )
 }
 
 // ---------------------------------------------------------------------------
-// Utilidades de maquetación
-// ---------------------------------------------------------------------------
 
-/**
- * Sección con encabezado consistente.
- *
- * El `id` alimenta los enlaces internos de la página, y el `aria-labelledby`
- * hace que los lectores de pantalla puedan enumerar las secciones y saltar
- * entre ellas.
- */
-function Section({
-  id,
-  eyebrow,
-  title,
-  lead,
-  children,
-}: {
-  id: string
-  eyebrow: string
-  title: string
-  lead: string
-  children: ReactNode
-}) {
+function Section({ id, eyebrow, title, lead, children }: { id: string; eyebrow: string; title: string; lead: string; children: ReactNode }) {
   return (
-    <section id={id} aria-labelledby={`${id}-title`} className="scroll-mt-20">
-      <header className="mb-6 max-w-3xl">
-        <p className="text-xs font-semibold uppercase tracking-wider text-brand-600">
-          {eyebrow}
-        </p>
-        <h2
-          id={`${id}-title`}
-          className="mt-1.5 text-2xl font-bold text-slate-900 sm:text-3xl"
-        >
-          {title}
-        </h2>
-        <p className="mt-3 text-slate-600">{lead}</p>
+    <section id={id} aria-labelledby={`${id}-title`} className="scroll-mt-24">
+      <header className="mb-8 max-w-3xl">
+        <p className="eyebrow text-accent">{eyebrow}</p>
+        <h2 id={`${id}-title`} className="mt-2 text-3xl font-bold tracking-tight text-ink sm:text-[2.1rem] sm:leading-tight">{title}</h2>
+        <p className="mt-4 text-[1.05rem] leading-relaxed text-ink-2">{lead}</p>
       </header>
-
       {children}
     </section>
+  )
+}
+
+function Figure({ children, caption }: { children: ReactNode; caption: string }) {
+  return (
+    <figure className="card overflow-hidden">
+      <div className="overflow-x-auto p-4 sm:p-6">
+        <div className="min-w-[640px]">{children}</div>
+      </div>
+      <figcaption className="border-t border-line bg-surface-2/60 px-5 py-3 text-sm text-ink-2">{caption}</figcaption>
+    </figure>
   )
 }

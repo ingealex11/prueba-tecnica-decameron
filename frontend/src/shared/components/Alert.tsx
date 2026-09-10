@@ -1,3 +1,4 @@
+import { CheckCircle2, Info, TriangleAlert, XCircle } from 'lucide-react'
 import type { ReactNode } from 'react'
 
 import { cn } from '@/shared/utils/cn'
@@ -11,11 +12,11 @@ interface AlertProps {
   className?: string
 }
 
-const TONES: Record<Tone, { box: string; icon: string; symbol: string }> = {
-  error: { box: 'bg-red-50 text-red-800 ring-red-200', icon: 'text-red-500', symbol: '⚠' },
-  warning: { box: 'bg-amber-50 text-amber-900 ring-amber-200', icon: 'text-amber-500', symbol: '⚠' },
-  info: { box: 'bg-brand-50 text-brand-900 ring-brand-200', icon: 'text-brand-500', symbol: 'ℹ' },
-  success: { box: 'bg-emerald-50 text-emerald-900 ring-emerald-200', icon: 'text-emerald-500', symbol: '✓' },
+const TONES: Record<Tone, { box: string; icon: typeof Info; iconColor: string }> = {
+  error: { box: 'bg-danger-soft text-danger ring-danger/20', icon: XCircle, iconColor: 'text-danger' },
+  warning: { box: 'bg-warning-soft text-warning ring-warning/20', icon: TriangleAlert, iconColor: 'text-warning' },
+  info: { box: 'bg-info-soft text-info ring-info/20', icon: Info, iconColor: 'text-info' },
+  success: { box: 'bg-success-soft text-success ring-success/20', icon: CheckCircle2, iconColor: 'text-success' },
 }
 
 /**
@@ -26,23 +27,17 @@ const TONES: Record<Tone, { box: string; icon: string; symbol: string }> = {
  * lectura por algo que no requiere acción resulta molesto.
  */
 export function Alert({ tone = 'info', title, children, className }: AlertProps) {
-  const styles = TONES[tone]
+  const { box, icon: Icon, iconColor } = TONES[tone]
 
   return (
     <div
       role={tone === 'error' ? 'alert' : 'status'}
-      className={cn(
-        'flex gap-3 rounded-lg p-4 text-sm ring-1 ring-inset',
-        styles.box,
-        className,
-      )}
+      className={cn('flex gap-3 rounded-xl p-4 text-sm ring-1 ring-inset', box, className)}
     >
-      <span className={cn('select-none text-base leading-5', styles.icon)} aria-hidden="true">
-        {styles.symbol}
-      </span>
-      <div className="flex-1">
+      <Icon className={cn('mt-0.5 size-4.5 shrink-0', iconColor)} aria-hidden="true" />
+      <div className="min-w-0 flex-1 text-ink">
         {title && <p className="mb-0.5 font-semibold">{title}</p>}
-        <div>{children}</div>
+        <div className="text-ink-2">{children}</div>
       </div>
     </div>
   )

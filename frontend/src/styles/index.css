@@ -182,6 +182,26 @@
   @apply font-sans rounded-card;
   background: var(--color-surface-2);
 }
+/* Costuras entre teselas.
+
+   Leaflet 1.9 dibuja las teselas con `mix-blend-mode: plus-lighter` para
+   disimular las costuras en Chrome. Con un factor de escala fraccionario
+   —zoom del navegador al 90 %, escalado de Windows al 125 %— ese modo de
+   mezcla produce el efecto contrario: donde dos teselas se solapan por un
+   subpíxel, sus colores se suman y aparece una rejilla de líneas claras.
+
+   Se vuelve a la mezcla normal y se dibuja cada tesela un píxel más grande,
+   de modo que el solapamiento tape cualquier hueco sin sumar colores. A
+   escala de mapa el píxel extra no se aprecia. Los `!important` son
+   necesarios porque Leaflet fija estos valores en línea y en su propia hoja. */
+.leaflet-tile-container .leaflet-tile,
+.leaflet-tile {
+  mix-blend-mode: normal !important;
+  width: 257px !important;
+  height: 257px !important;
+  max-width: none !important;
+  max-height: none !important;
+}
 .leaflet-popup-content-wrapper,
 .leaflet-popup-tip {
   @apply bg-surface text-ink shadow-pop;
@@ -192,9 +212,11 @@
 .leaflet-control-zoom a {
   @apply bg-surface text-ink border-line;
 }
-.dark .leaflet-tile {
-  /* Oscurece el mapa base para que no deslumbre en modo oscuro. */
-  filter: brightness(0.7) contrast(1.05) saturate(0.85);
+.dark .leaflet-tile-pane {
+  /* Oscurece el mapa base para que no deslumbre en modo oscuro.
+     El filtro va sobre el contenedor y no sobre cada tesela: aplicado por
+     tesela, el navegador deja ver las costuras entre ellas como una rejilla. */
+  filter: brightness(0.72) contrast(1.05) saturate(0.8);
 }
 .leaflet-control-attribution {
   @apply text-[10px] bg-surface/80 text-ink-3;

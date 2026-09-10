@@ -52,6 +52,10 @@ export interface ApiError {
  */
 export type ApiErrorCode =
   | 'VALIDATION_FAILED'
+  | 'INVALID_CREDENTIALS'
+  | 'INVALID_CHALLENGE'
+  | 'CHALLENGE_EXPIRED'
+  | 'INVALID_TWO_FACTOR_CODE'
   | 'INVALID_ACCOMMODATION_FOR_ROOM_TYPE'
   | 'DUPLICATE_ROOM_CONFIGURATION'
   | 'ROOM_CAPACITY_EXCEEDED'
@@ -103,10 +107,18 @@ export interface RoomType {
   accommodations: Accommodation[]
 }
 
+/** Coordenadas geográficas en grados decimales. */
+export interface GeoPoint {
+  latitude: number
+  longitude: number
+}
+
 export interface Hotel {
   id: number
   name: string
   address: string
+  /** Ubicación en el mapa; `null` si aún no se ha situado el hotel. */
+  location: GeoPoint | null
   nit: string
   max_rooms: number
   /** Habitaciones ya configuradas; lo calcula el servidor. */
@@ -143,6 +155,37 @@ export interface HotelPayload {
   city_id: number
   nit: string
   max_rooms: number
+  latitude?: number | null
+  longitude?: number | null
+}
+
+// ---------------------------------------------------------------------------
+// Autenticación
+// ---------------------------------------------------------------------------
+
+export interface AuthUser {
+  id: number
+  name: string
+  email: string
+  initials: string
+}
+
+/** Respuesta del primer paso: un desafío pendiente, sin token todavía. */
+export interface TwoFactorChallenge {
+  challenge_id: string
+  /** Segundos de validez del código desde su emisión. */
+  expires_in: number
+  /** Destino enmascarado al que se envió el código. */
+  sent_to: string
+  /** Código en claro; sólo presente en modo demostración. */
+  demo_code: string | null
+}
+
+/** Respuesta del segundo paso: la sesión abierta. */
+export interface AuthSession {
+  token: string
+  token_type: 'Bearer'
+  user: AuthUser
 }
 
 export interface RoomPayload {

@@ -1,11 +1,20 @@
-import { Link } from 'react-router-dom'
+import { ArrowDown, ArrowUp, ArrowUpDown, BedDouble, MapPin, MapPinOff, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
 
-import type { Hotel } from '@/shared/api/types'
-import { Button } from '@/shared/components/Button'
+import type { Hotel, HotelFilters } from '@/shared/api/types'
+import { Badge } from '@/shared/components/Badge'
 import { CapacityMeter } from '@/shared/components/CapacityMeter'
+import { Menu } from '@/shared/components/Menu'
+import { cn } from '@/shared/utils/cn'
+
+type SortKey = NonNullable<HotelFilters['sort_by']>
+type SortDir = NonNullable<HotelFilters['sort_direction']>
 
 interface HotelTableProps {
   hotels: Hotel[]
+  sortBy?: SortKey
+  sortDirection?: SortDir
+  onSort: (key: SortKey, direction: SortDir) => void
   onEdit: (hotel: Hotel) => void
   onDelete: (hotel: Hotel) => void
 }
@@ -13,89 +22,79 @@ interface HotelTableProps {
 /**
  * Listado de hoteles.
  *
- * Se presenta de dos formas según el ancho disponible, y no como una tabla que
- * se desplaza en horizontal:
- *
- *   - Desde 1024 px —el caso de los portátiles de 13 y 15 pulgadas que menciona
- *     el enunciado— una tabla, que es lo que mejor permite comparar filas.
- *   - Por debajo, tarjetas apiladas. Una tabla de seis columnas en un móvil
- *     obliga a desplazarse lateralmente para leer cada fila, que es de las
- *     peores experiencias posibles.
- *
- * Ambas presentaciones muestran los mismos datos y ofrecen las mismas acciones:
- * la versión estrecha no es una versión recortada.
+ * Desde 1024 px una tabla con columnas ordenables; por debajo, tarjetas
+ * apiladas. Ambas presentaciones muestran los mismos datos y ofrecen las
+ * mismas acciones: la versión estrecha no es una versión recortada.
  */
-export function HotelTable({ hotels, onEdit, onDelete }: HotelTableProps) {
+export function HotelTable({ hotels, sortBy = 'name', sortDirection = 'asc', onSort, onEdit, onDelete }: HotelTableProps) {
+  const navigate = useNavigate()
+
+  const actionsFor = (hotel: Hotel) => (
+    <Menu
+      triggerLabel={`Acciones para ${hotel.name}`}
+      trigger={<MoreHorizontal className="size-[18px]" />}
+      items={[
+        { label: 'Configurar habitaciones', icon: <BedDouble />, onSelect: () => navigate(`/app/hoteles/${hotel.id}`) },
+        { label: 'Editar datos', icon: <Pencil />, onSelect: () => onEdit(hotel) },
+        'separator',
+        { label: 'Eliminar hotel', icon: <Trash2 />, tone: 'danger', onSelect: () => onDelete(hotel) },
+      ]}
+    />
+  )
+
   return (
     <>
-      {/* ---- Tabla, desde 1024 px ---- */}
       <div className="hidden lg:block">
         <table className="w-full text-left text-sm">
-          <caption className="sr-only">
-            Hoteles registrados, con su ubicación, NIT y capacidad configurada
-          </caption>
-          <thead className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500">
+          <caption className="sr-only">Hoteles registrados, con su ubicación, NIT y capacidad configurada</caption>
+          <thead className="border-b border-line bg-surface-2/60">
             <tr>
-              <th scope="col" className="px-4 py-3 font-semibold">Hotel</th>
-              <th scope="col" className="px-4 py-3 font-semibold">Ciudad</th>
-              <th scope="col" className="px-4 py-3 font-semibold">NIT</th>
-              <th scope="col" className="px-4 py-3 font-semibold">Capacidad</th>
-              <th scope="col" className="px-4 py-3 text-right font-semibold">
-                Acciones
-              </th>
+              <SortableHeader label="Hotel" column="name" current={sortBy} direction={sortDirection} onSort={onSort} className="pl-5" />
+              <th scope="col" className="eyebrow px-4 py-3">Ciudad</th>
+              <SortableHeader label="NIT" column="nit" current={sortBy} direction={sortDirection} onSort={onSort} />
+              <SortableHeader label="Capacidad" column="max_rooms" current={sortBy} direction={sortDirection} onSort={onSort} />
+              <th scope="col" className="eyebrow px-4 py-3">Estado</th>
+              <th scope="col" className="w-14 px-4 py-3"><span className="sr-only">Acciones</span></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-line">
             {hotels.map((hotel) => (
-              <tr key={hotel.id} className="transition-colors hover:bg-slate-50">
-                <td className="px-4 py-3">
-                  <p className="font-medium text-slate-900">{hotel.name}</p>
-                  <p className="text-xs text-slate-500">{hotel.address}</p>
+              <tr key={hotel.id} className="group transition-colors hover:bg-surface-2/60">
+                <td className="py-3 pl-5 pr-4">
+                  <Link to={`/app/hoteles/${hotel.id}`} className="block">
+                    <p className="font-medium text-ink group-hover:text-accent">{hotel.name}</p>
+                    <p className="mt-0.5 flex items-center gap-1 text-xs text-ink-3">
+                      {hotel.location ? <MapPin className="size-3" aria-hidden="true" /> : <MapPinOff className="size-3" aria-hidden="true" />}
+                      {hotel.address}
+                    </p>
+                  </Link>
                 </td>
-                <td className="px-4 py-3 text-slate-600">
-                  {hotel.city?.name ?? '—'}
-                </td>
-                <td className="px-4 py-3 font-mono text-xs text-slate-600">
-                  {hotel.nit}
-                </td>
-                <td className="px-4 py-3">
-                  <CapacityMeter
-                    occupied={hotel.occupied_rooms}
-                    max={hotel.max_rooms}
-                    compact
-                  />
-                </td>
-                <td className="px-4 py-3">
-                  <HotelActions
-                    hotel={hotel}
-                    onEdit={onEdit}
-                    onDelete={onDelete}
-                  />
-                </td>
+                <td className="px-4 py-3 text-ink-2">{hotel.city?.name ?? '—'}</td>
+                <td className="px-4 py-3 font-mono text-xs text-ink-2">{hotel.nit}</td>
+                <td className="px-4 py-3"><CapacityMeter occupied={hotel.occupied_rooms} max={hotel.max_rooms} compact /></td>
+                <td className="px-4 py-3"><StatusBadge hotel={hotel} /></td>
+                <td className="px-4 py-3 text-right">{actionsFor(hotel)}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      {/* ---- Tarjetas, por debajo de 1024 px ---- */}
-      <ul className="divide-y divide-slate-100 lg:hidden">
+      <ul className="divide-y divide-line lg:hidden">
         {hotels.map((hotel) => (
           <li key={hotel.id} className="space-y-3 p-4">
-            <div>
-              <p className="font-medium text-slate-900">{hotel.name}</p>
-              <p className="text-sm text-slate-500">{hotel.address}</p>
-              <p className="mt-1 text-xs text-slate-500">
-                {hotel.city?.name ?? '—'} · NIT {hotel.nit}
-              </p>
+            <div className="flex items-start justify-between gap-3">
+              <Link to={`/app/hoteles/${hotel.id}`} className="min-w-0">
+                <p className="font-medium text-ink">{hotel.name}</p>
+                <p className="text-sm text-ink-2">{hotel.address}</p>
+                <p className="mt-1 text-xs text-ink-3">{hotel.city?.name ?? '—'} · NIT {hotel.nit}</p>
+              </Link>
+              {actionsFor(hotel)}
             </div>
-
-            <CapacityMeter
-              occupied={hotel.occupied_rooms}
-              max={hotel.max_rooms}
-            />
-
-            <HotelActions hotel={hotel} onEdit={onEdit} onDelete={onDelete} />
+            <div className="flex items-center justify-between gap-3">
+              <CapacityMeter occupied={hotel.occupied_rooms} max={hotel.max_rooms} />
+            </div>
+            <StatusBadge hotel={hotel} />
           </li>
         ))}
       </ul>
@@ -103,46 +102,42 @@ export function HotelTable({ hotels, onEdit, onDelete }: HotelTableProps) {
   )
 }
 
-/**
- * Acciones disponibles sobre un hotel.
- *
- * Se extraen a un componente propio para que las dos presentaciones —tabla y
- * tarjeta— compartan exactamente el mismo comportamiento en lugar de mantener
- * dos copias que podrían divergir.
- */
-function HotelActions({
-  hotel,
-  onEdit,
-  onDelete,
+function StatusBadge({ hotel }: { hotel: Hotel }) {
+  if (hotel.available_rooms === 0) return <Badge tone="danger" dot>Completo</Badge>
+  if (hotel.occupied_rooms === 0) return <Badge tone="neutral" dot>Sin configurar</Badge>
+  if (hotel.occupied_rooms / hotel.max_rooms >= 0.85) return <Badge tone="warning" dot>Casi completo</Badge>
+  return <Badge tone="success" dot>Con cupo</Badge>
+}
+
+function SortableHeader({
+  label,
+  column,
+  current,
+  direction,
+  onSort,
+  className,
 }: {
-  hotel: Hotel
-  onEdit: (hotel: Hotel) => void
-  onDelete: (hotel: Hotel) => void
+  label: string
+  column: SortKey
+  current: SortKey
+  direction: SortDir
+  onSort: (key: SortKey, direction: SortDir) => void
+  className?: string
 }) {
+  const isActive = current === column
+  const next: SortDir = isActive && direction === 'asc' ? 'desc' : 'asc'
+  const Icon = !isActive ? ArrowUpDown : direction === 'asc' ? ArrowUp : ArrowDown
+
   return (
-    <div className="flex flex-wrap items-center justify-end gap-2">
-      <Link
-        to={`/app/hoteles/${hotel.id}`}
-        className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-brand-700 transition-colors hover:bg-brand-50"
+    <th scope="col" aria-sort={isActive ? (direction === 'asc' ? 'ascending' : 'descending') : 'none'} className={cn('px-4 py-3', className)}>
+      <button
+        type="button"
+        onClick={() => onSort(column, next)}
+        className={cn('eyebrow inline-flex items-center gap-1 transition-colors hover:text-ink', isActive && 'text-ink')}
       >
-        Habitaciones
-      </Link>
-
-      <Button variant="ghost" size="sm" onClick={() => onEdit(hotel)}>
-        Editar
-      </Button>
-
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => onDelete(hotel)}
-        className="text-red-600 hover:bg-red-50"
-        // El nombre en la etiqueta accesible distingue cada botón: sin ella,
-        // un lector de pantalla anunciaría una lista de "Eliminar" idénticos.
-        aria-label={`Eliminar ${hotel.name}`}
-      >
-        Eliminar
-      </Button>
-    </div>
+        {label}
+        <Icon className="size-3.5" aria-hidden="true" />
+      </button>
+    </th>
   )
 }

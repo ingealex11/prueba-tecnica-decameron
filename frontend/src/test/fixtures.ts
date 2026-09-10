@@ -56,6 +56,7 @@ export function makeHotel(overrides: Partial<Hotel> = {}): Hotel {
     id: 1,
     name: 'Decameron Cartagena',
     address: 'Calle 23 58-25',
+    location: { latitude: 10.4017, longitude: -75.5537 },
     nit: '12345678-9',
     max_rooms: maxRooms,
     occupied_rooms: occupied,

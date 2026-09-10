@@ -6,11 +6,16 @@
 ![React](https://img.shields.io/badge/React-19-61DAFB)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1)
-![Pruebas](https://img.shields.io/badge/pruebas-141%20en%20verde-success)
+![Pruebas](https://img.shields.io/badge/pruebas-163%20en%20verde-success)
+![OpenAPI](https://img.shields.io/badge/OpenAPI-3.1-6BA539)
 
 Aplicación web para administrar el inventario de hoteles de Hoteles Decameron de
 Colombia y la configuración de habitaciones de cada uno, haciendo cumplir por
 diseño las reglas de negocio del enunciado.
+
+Además de lo que pide el enunciado, incluye **autenticación en dos pasos**,
+**mapa de sedes** sobre OpenStreetMap, **panel con indicadores**,
+**documentación OpenAPI interactiva** generada desde el código y **modo oscuro**.
 
 > **¿Sólo quiere ver cómo se instala?** Vaya directo a
 > **[INSTALL.md](INSTALL.md)**, escrito paso a paso y sin dar nada por sabido.
@@ -100,7 +105,24 @@ falla, está en **[INSTALL.md](INSTALL.md)**.
 
 La base de datos queda poblada con el hotel del ejemplo del enunciado
 —Decameron Cartagena, 42 habitaciones repartidas en 25 + 12 + 5— y otros tres
-que ilustran distintos estados de la interfaz.
+que ilustran distintos estados de la interfaz, todos situados en el mapa.
+
+### Credenciales de demostración
+
+| Correo | Contraseña |
+|--------|------------|
+| `gerente@decameron.test` | `decameron2026` |
+
+Tras las credenciales se pide un código de verificación de seis dígitos. En la
+instancia de demostración ese código **se muestra en pantalla** en lugar de
+enviarse por SMS, para que pueda probarse sin bandeja de correo; la
+verificación en el servidor es la misma que en producción.
+
+### Documentación interactiva de la API
+
+Con el backend en marcha: <http://localhost:8000/docs/api>. Se genera desde el
+código en cada petición, así que no puede quedarse desactualizada. Permite
+probar cada endpoint desde el navegador.
 
 ---
 
@@ -266,6 +288,10 @@ RESTful, versionada bajo `/api/v1`, con verbos y códigos de estado semánticos.
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
+| `POST` | `/api/v1/auth/login` | Paso 1: credenciales. Emite un desafío, no un token |
+| `POST` | `/api/v1/auth/verify` | Paso 2: código de verificación. Emite el token |
+| `GET` | `/api/v1/auth/me` | Persona autenticada |
+| `POST` | `/api/v1/auth/logout` | Revoca el token actual |
 | `GET` | `/api/v1/hotels` | Listado con búsqueda, filtro por ciudad, orden y paginación |
 | `POST` | `/api/v1/hotels` | Registrar hotel |
 | `GET` | `/api/v1/hotels/{id}` | Detalle con sus habitaciones |
@@ -396,6 +422,8 @@ un fallo en una capa no comprometa el sistema entero.
 
 | Riesgo | Medida |
 |--------|--------|
+| Acceso con contraseña robada | Autenticación en dos pasos: el código se guarda cifrado, caduca a los cinco minutos, se consume al usarse y se invalida tras cinco intentos |
+| Enumeración de cuentas | La contraseña se compara también cuando el correo no existe, contra un hash ficticio, para que el tiempo de respuesta no delate qué cuentas hay |
 | Inyección SQL | Consultas parametrizadas vía Eloquent. El ordenamiento, que sí acaba interpolado en `ORDER BY`, se restringe a una lista cerrada de columnas |
 | Cross-site scripting | React escapa por defecto; no se usa inserción directa de HTML en ningún punto |
 | Validación eludida | Doble validación: el cliente para responder rápido, el servidor porque es lo único que el usuario no controla |
@@ -407,18 +435,19 @@ un fallo en una capa no comprometa el sistema entero.
 | Fuga de información | En producción los errores inesperados no revelan mensajes internos ni trazas |
 | Secretos expuestos | Credenciales en variables de entorno; sólo las variables `VITE_` llegan al navegador |
 
-> **Sobre la autenticación.** El enunciado no pide login, y la aplicación
-> desplegada debe poder evaluarse sin credenciales. Se implementó Sanctum y se
-> entrega desactivada mediante configuración, en lugar de dejar código
-> comentado: activarla es cambiar `API_AUTH_ENABLED=true`.
+> **Sobre la autenticación.** El enunciado no pide login. El panel web exige
+> iniciar sesión en dos pasos; los endpoints de hoteles de la API, en cambio,
+> se entregan sin exigir token para que puedan evaluarse desde la
+> documentación sin credenciales. Activar la exigencia de token en ellos es
+> cambiar `API_AUTH_ENABLED=true`.
 
 ---
 
 ## Pruebas
 
-**141 pruebas automatizadas**, ejecutadas contra PostgreSQL real.
+**163 pruebas automatizadas**, ejecutadas contra PostgreSQL real.
 
-### Backend — 96 pruebas, 239 aserciones
+### Backend — 113 pruebas, 291 aserciones
 
 ```bash
 cd backend && composer test
@@ -436,8 +465,9 @@ cd backend && composer test
 - Las tres reglas desde HTTP, incluida la comprobación de que el ejemplo del enunciado cuadra: 25 + 12 + 5 = 42.
 - Protección contra manipular la configuración de un hotel a través de otro.
 - Los catálogos no exponen ningún endpoint de escritura.
+- El flujo de autenticación completo: sin token tras el paso 1, código cifrado, caducidad, consumo único, bloqueo por intentos y cierre de sesión que revoca sólo el token actual.
 
-### Frontend — 45 pruebas
+### Frontend — 50 pruebas
 
 ```bash
 cd frontend && npm test
@@ -447,6 +477,7 @@ cd frontend && npm test
 - Las combinaciones ya configuradas quedan bloqueadas, salvo la que se está editando.
 - El indicador de capacidad, incluidos los estados imposibles que deben degradar con sensatez.
 - La normalización de errores de la API, incluida la respuesta que no sigue el contrato.
+- La entrada del código de verificación: avance y retroceso del foco, pegado del código completo y envío automático al sexto dígito.
 
 ### Por qué PostgreSQL y no SQLite en memoria
 
@@ -464,8 +495,8 @@ real en producción.
 
 | Trabajo | Comprueba |
 |---------|-----------|
-| **Backend** (PHP 8.2 y 8.3) | Estilo con Pint · Análisis estático con Larastan nivel 6 · 96 pruebas contra PostgreSQL 17 · cobertura mínima del 70 % |
-| **Frontend** | Estilo · Comprobación de tipos · 45 pruebas · Compilación de producción |
+| **Backend** (PHP 8.2 y 8.3) | Estilo con Pint · Análisis estático con Larastan nivel 6 · 113 pruebas contra PostgreSQL 17 · cobertura mínima del 70 % |
+| **Frontend** | Estilo · Comprobación de tipos · 50 pruebas · Compilación de producción |
 
 PHPStan se configura **sin `ignoreErrors` ni fichero de línea base**: silenciar
 un error del análisis estático es aplazarlo, no resolverlo.
@@ -571,6 +602,16 @@ prueba-tecnica-decameron/
 | Integración continua | ✅ |
 | Pruebas unitarias | ✅ |
 | Despliegue en la nube con enlace | ⏳ |
+
+### Añadido por iniciativa propia
+
+| Extra | Dónde |
+|-------|-------|
+| Autenticación en dos pasos con código de verificación | `app/Domain/Auth/` · `/login` |
+| Ubicación de cada hotel en el mapa, con geocodificación de la dirección | `hotels.latitude/longitude` · `/app/mapa` |
+| Panel con indicadores de ocupación | `/app` |
+| Documentación OpenAPI 3.1 interactiva, generada desde el código | `/docs/api` |
+| Modo claro y oscuro con sistema de diseño por tokens | `frontend/src/styles/index.css` |
 
 ---
 

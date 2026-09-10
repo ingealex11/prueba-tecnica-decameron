@@ -18,11 +18,20 @@ import { CapacityMeter } from '@/shared/components/CapacityMeter'
 |
 */
 
+/**
+ * La cifra "ocupadas / máximo" se compone de dos elementos —el número en
+ * negrita y el máximo atenuado—, así que se comprueba sobre el texto completo
+ * del medidor en lugar de buscar una cadena en un único nodo.
+ */
+function meterText(): string {
+  return screen.getByRole('meter').parentElement?.textContent?.replace(/\s+/g, ' ').trim() ?? ''
+}
+
 describe('CapacityMeter', () => {
   it('muestra lo ocupado sobre el máximo y las habitaciones libres', () => {
     render(<CapacityMeter occupied={37} max={42} />)
 
-    expect(screen.getByText('37 / 42')).toBeInTheDocument()
+    expect(meterText()).toContain('37 / 42')
     expect(screen.getByText('5 libres')).toBeInTheDocument()
   })
 
@@ -37,7 +46,7 @@ describe('CapacityMeter', () => {
     // 25 Estándar-Sencilla + 12 Junior-Triple + 5 Estándar-Doble = 42
     render(<CapacityMeter occupied={25 + 12 + 5} max={42} />)
 
-    expect(screen.getByText('42 / 42')).toBeInTheDocument()
+    expect(meterText()).toContain('42 / 42')
     expect(screen.getByText('Completo')).toBeInTheDocument()
   })
 
@@ -66,7 +75,7 @@ describe('CapacityMeter', () => {
   it('tolera un máximo de cero sin dividir por cero', () => {
     render(<CapacityMeter occupied={0} max={0} />)
 
-    expect(screen.getByText('0 / 0')).toBeInTheDocument()
+    expect(meterText()).toContain('0 / 0')
     expect(screen.getByText('Completo')).toBeInTheDocument()
   })
 })

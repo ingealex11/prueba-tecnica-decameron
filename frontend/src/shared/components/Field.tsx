@@ -33,8 +33,6 @@ interface FieldProps {
  * control real, sea un input, un select o un componente propio.
  */
 export function Field({ label, error, hint, required, children }: FieldProps) {
-  // `useId` genera identificadores únicos y estables, sin colisiones aunque el
-  // mismo campo se renderice dos veces en la pantalla.
   const id = useId()
   const errorId = `${id}-error`
   const hintId = `${id}-hint`
@@ -43,10 +41,10 @@ export function Field({ label, error, hint, required, children }: FieldProps) {
 
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-sm font-medium text-slate-700">
+      <label htmlFor={id} className="text-sm font-medium text-ink">
         {label}
         {required && (
-          <span className="ml-0.5 text-red-600" aria-hidden="true">
+          <span className="ml-0.5 text-danger" aria-hidden="true">
             *
           </span>
         )}
@@ -59,18 +57,12 @@ export function Field({ label, error, hint, required, children }: FieldProps) {
       })}
 
       {error ? (
-        <p
-          id={errorId}
-          // `role="alert"` hace que el lector de pantalla anuncie el error en
-          // cuanto aparece, sin esperar a que el usuario navegue hasta él.
-          role="alert"
-          className="text-sm text-red-600"
-        >
+        <p id={errorId} role="alert" className="text-[0.8125rem] text-danger">
           {error}
         </p>
       ) : (
         hint && (
-          <p id={hintId} className="text-sm text-slate-500">
+          <p id={hintId} className="text-[0.8125rem] text-ink-3">
             {hint}
           </p>
         )
@@ -78,4 +70,3 @@ export function Field({ label, error, hint, required, children }: FieldProps) {
     </div>
   )
 }
-

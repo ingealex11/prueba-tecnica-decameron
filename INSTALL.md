@@ -320,20 +320,28 @@ Abra **Chrome** o **Firefox** y visite:
 
 ### http://localhost:5173
 
-**Debería ver** una página de presentación azul con el título «Sistema de
-Gestión Hotelera».
+**Debería ver** una página de presentación oscura con el título «Construí un
+sistema que hace imposible configurar mal un hotel».
 
 Ahora recorra esta lista para confirmar que todo está en su sitio:
 
-- [ ] Pulse **«Abrir la aplicación»**. Aparece un listado con cuatro hoteles.
-- [ ] «Decameron Cartagena» muestra **42 / 42** y la etiqueta **Completo**. Es el hotel del ejemplo del enunciado.
-- [ ] Pulse **«Habitaciones»** en «Decameron Galeón». Se ven sus configuraciones y quedan 38 libres.
+- [ ] Pulse **«Entrar a la aplicación»**. Aparece la pantalla de inicio de sesión.
+- [ ] Pulse **«Rellenar credenciales de prueba»** y luego **«Continuar»**. Aparece la verificación en dos pasos con un mensaje simulado que contiene un código de seis dígitos.
+- [ ] Pulse **«Usar este código»**. Entra al panel, con cuatro tarjetas de indicadores y un mapa con cuatro marcadores.
+- [ ] En el menú lateral pulse **«Hoteles»**. «Decameron Cartagena» muestra **42 / 42** y la etiqueta **Completo**. Es el hotel del ejemplo del enunciado.
+- [ ] Pulse sobre «Decameron Galeón». Se ven sus configuraciones, su ubicación en el mapa y quedan 38 libres.
 - [ ] Pulse **«Asignar habitaciones»**, elija el tipo **Junior** y despliegue **Acomodación**. Sólo aparecen **Triple** y **Cuádruple**.
-- [ ] Cambie el tipo a **Estándar**. Ahora sólo aparecen **Sencilla** y **Doble**.
+- [ ] Cambie el tipo a **Estándar**. Ahora sólo aparecen **Sencilla** y **Doble** (Doble bloqueada, porque ya está configurada).
 - [ ] Escriba **50** en la cantidad y pulse **Asignar habitaciones**. Aparece en rojo: *sólo quedan 38 disponibles*.
+- [ ] Abra <http://localhost:8000/docs/api>. Se ve la documentación interactiva de la API con 16 operaciones.
 
-Si las seis casillas se cumplen, la instalación está correcta y las reglas del
+Si las nueve casillas se cumplen, la instalación está correcta y las reglas del
 negocio funcionan.
+
+> Las credenciales de demostración son `gerente@decameron.test` /
+> `decameron2026`. El código de verificación se muestra en pantalla porque la
+> instancia está en modo demostración (`TWO_FACTOR_REVEAL_CODE=true`); en
+> producción se enviaría por SMS o correo.
 
 ---
 
@@ -350,7 +358,7 @@ Desde la carpeta `backend`, con el servidor detenido o en otra terminal:
 composer test
 ```
 
-**Debería terminar con:** `Tests: 96 passed`.
+**Debería terminar con:** `Tests: 113 passed`.
 
 ### Frontend
 
@@ -360,7 +368,7 @@ Desde la carpeta `frontend`:
 npm test
 ```
 
-**Debería terminar con:** `Tests  45 passed (45)`.
+**Debería terminar con:** `Tests  50 passed (50)`.
 
 ### Todas las verificaciones
 

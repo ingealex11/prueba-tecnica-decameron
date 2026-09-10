@@ -34,7 +34,7 @@ export function ConfirmDialog({
   return (
     <Modal isOpen={isOpen} onClose={onCancel} title={title}>
       <div className="space-y-4">
-        <p className="text-sm text-slate-600">{message}</p>
+        <p className="text-sm text-ink-2">{message}</p>
 
         {warning && (
           <Alert tone="warning" title="Tenga en cuenta">

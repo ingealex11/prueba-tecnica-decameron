@@ -57,6 +57,16 @@ export const hotelSchema = z.object({
     .int('El número de habitaciones debe ser un número entero.')
     .min(1, 'El hotel debe tener al menos una habitación.')
     .max(10000, 'El número de habitaciones no puede superar 10.000.'),
+
+  // Ubicación opcional. Si existe, ambas coordenadas deben estar en rango;
+  // el selector del mapa garantiza que vienen juntas.
+  location: z
+    .object({
+      latitude: z.number().min(-90).max(90),
+      longitude: z.number().min(-180).max(180),
+    })
+    .nullable()
+    .optional(),
 })
 
 export type HotelFormValues = z.infer<typeof hotelSchema>
@@ -68,4 +78,5 @@ export const emptyHotelForm: HotelFormValues = {
   city_id: 0,
   nit: '',
   max_rooms: 1,
+  location: null,
 }

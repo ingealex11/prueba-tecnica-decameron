@@ -2,6 +2,8 @@ import { httpClient } from './client'
 import type {
   Accommodation,
   ApiSuccess,
+  AuthSession,
+  AuthUser,
   City,
   Hotel,
   HotelFilters,
@@ -10,7 +12,47 @@ import type {
   Paginated,
   RoomPayload,
   RoomType,
+  TwoFactorChallenge,
 } from './types'
+
+// ---------------------------------------------------------------------------
+// Autenticación
+// ---------------------------------------------------------------------------
+
+export const authService = {
+  /** Paso 1: credenciales. Devuelve un desafío, no un token. */
+  async login(email: string, password: string, deviceName: string): Promise<TwoFactorChallenge> {
+    const { data } = await httpClient.post<ApiSuccess<TwoFactorChallenge>>('/auth/login', {
+      email,
+      password,
+      device_name: deviceName,
+    })
+
+    return data.data
+  },
+
+  /** Paso 2: código de verificación. Devuelve la sesión con su token. */
+  async verify(challengeId: string, code: string, deviceName: string): Promise<AuthSession> {
+    const { data } = await httpClient.post<ApiSuccess<AuthSession>>('/auth/verify', {
+      challenge_id: challengeId,
+      code,
+      device_name: deviceName,
+    })
+
+    return data.data
+  },
+
+  /** Persona a la que pertenece el token actual. */
+  async me(): Promise<AuthUser> {
+    const { data } = await httpClient.get<ApiSuccess<AuthUser>>('/auth/me')
+
+    return data.data
+  },
+
+  async logout(): Promise<void> {
+    await httpClient.post('/auth/logout')
+  },
+}
 
 /**
  * Funciones que consumen la API.
