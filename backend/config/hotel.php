@@ -77,6 +77,19 @@ return [
 
     /*
     |---------------------------------------------------------------------------
+    | Datos de demostración
+    |---------------------------------------------------------------------------
+    |
+    | Carga los hoteles de ejemplo del enunciado y la persona de prueba al
+    | sembrar la base. Activo en desarrollo y en la instancia de evaluación;
+    | en un despliegue real debe ser false.
+    |
+    */
+
+    'demo_seed' => (bool) env('DEMO_SEED', true),
+
+    /*
+    |---------------------------------------------------------------------------
     | Límite de peticiones
     |---------------------------------------------------------------------------
     |

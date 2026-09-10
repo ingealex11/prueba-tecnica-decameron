@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Seeder;
 
 /**
@@ -23,29 +22,15 @@ final class DatabaseSeeder extends Seeder
             CatalogSeeder::class,
         ]);
 
-        // Los datos de demostración sólo se cargan fuera de producción: un
-        // despliegue real no debe arrancar con hoteles de ejemplo dentro.
-        if (! app()->environment('production')) {
-            $this->call(HotelSeeder::class);
-            $this->seedDemoUser();
+        /*
+         * Los datos de demostración se cargan según una bandera explícita y no
+         * según el entorno: la instancia pública de evaluación corre en
+         * `production` —con depuración apagada y cachés compiladas— y aun así
+         * necesita los hoteles de ejemplo y la persona de prueba. Un despliegue
+         * real deja `DEMO_SEED=false` y arranca vacío.
+         */
+        if (config('hotel.demo_seed')) {
+            $this->call(DemoSeeder::class);
         }
-    }
-
-    /**
-     * Usuario de demostración para probar la API con autenticación activada.
-     *
-     * Sólo es útil cuando `API_AUTH_ENABLED=true`; con la autenticación
-     * desactivada el usuario existe pero no se necesita. Su token se emite con
-     * el comando `php artisan hotel:token`.
-     */
-    private function seedDemoUser(): void
-    {
-        User::query()->updateOrCreate(
-            ['email' => 'gerente@decameron.test'],
-            [
-                'name' => 'Gerente de Operaciones',
-                'password' => bcrypt('decameron2026'),
-            ],
-        );
     }
 }
