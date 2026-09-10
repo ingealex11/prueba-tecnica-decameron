@@ -1,0 +1,37 @@
+# Aplicación de una sola página (SPA) en Apache / LiteSpeed.
+#
+# React Router gestiona las rutas en el navegador: /login, /app/hoteles/3, etc.
+# no existen como archivos. Sin esta regla, recargar cualquiera de ellas
+# devolvería un 404 del servidor. Toda ruta que no sea un archivo real se
+# sirve con index.html y el enrutador decide qué mostrar.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+    RewriteRule ^index\.html$ - [L]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule . /index.html [L]
+</IfModule>
+
+# Los recursos compilados llevan un hash en el nombre (index-DTlhQORW.js), de
+# modo que pueden cachearse durante mucho tiempo sin riesgo: cuando cambian,
+# cambia también su nombre. index.html, en cambio, nunca se cachea, para que
+# cada visita reciba la última versión.
+<IfModule mod_headers.c>
+    <FilesMatch "\.(js|css|woff2?|svg|png|jpg|webp)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+    <FilesMatch "index\.html$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+    </FilesMatch>
+
+    # Cabeceras de seguridad, en línea con las que envía la API.
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Compresión de texto.
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml
+</IfModule>
