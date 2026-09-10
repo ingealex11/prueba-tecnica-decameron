@@ -34,6 +34,7 @@ export function PublicLayout() {
               ['#reglas', 'Reglas'],
               ['#seguridad', 'Seguridad'],
               ['#calidad', 'Calidad'],
+              ['#ia', 'IA'],
               ['#instalacion', 'Instalación'],
               ['#entregables', 'Entregables'],
             ].map(([href, label]) => (

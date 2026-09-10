@@ -250,6 +250,63 @@ export const DELIVERABLES = [
   { title: 'Backlog SCRUM', detail: 'Trece historias de usuario con criterios de aceptación, definition of done y trazabilidad con el enunciado.', href: 'https://github.com/ingealex11/prueba-tecnica-decameron/blob/main/docs/scrum/product-backlog.md', label: 'Ver backlog' },
 ]
 
+/**
+ * Uso de inteligencia artificial durante el desarrollo.
+ *
+ * Se declara de forma explícita porque es parte del método de trabajo, y
+ * porque conviene que quien evalúa sepa exactamente en qué se apoyó y en qué
+ * no. El criterio: la IA acelera lo mecánico y sirve de segunda opinión; las
+ * decisiones, la revisión y la responsabilidad son mías.
+ */
+export const AI_PRINCIPLE =
+  'Trabajé con un asistente de IA como par de programación: rápido para lo repetitivo, útil para contrastar ideas, y siempre revisado. Ninguna decisión de arquitectura ni regla de negocio la tomó la IA; ninguna línea entró al repositorio sin pasar por mi lectura y por las pruebas.'
+
+export interface AiUsageRow {
+  area: string
+  ai: string
+  me: string
+}
+
+export const AI_USAGE: AiUsageRow[] = [
+  {
+    area: 'Diseño y arquitectura',
+    ai: 'Contrastar alternativas: Strategy frente a condicionales, índices parciales, bloqueo pesimista frente a optimista.',
+    me: 'Decidir cada una y justificarla. El modelo de dominio y las capas los definí yo antes de escribir código.',
+  },
+  {
+    area: 'Código repetitivo',
+    ai: 'Andamiaje de DTOs, Resources, FormRequests y componentes de interfaz a partir de mi especificación.',
+    me: 'Revisar cada archivo, ajustar nombres, comentarios y casos límite; eliminar lo que sobraba.',
+  },
+  {
+    area: 'Pruebas',
+    ai: 'Proponer casos a partir de las reglas: las doce combinaciones, los límites de capacidad, los flujos de fallo.',
+    me: 'Decidir qué merece prueba y qué no, y verificar que cada prueba falla cuando debe fallar.',
+  },
+  {
+    area: 'Depuración',
+    ai: 'Segunda opinión ante fallos poco obvios: el rollback que deshacía el contador de intentos, las costuras de Leaflet, la puerta que denegaba visitantes.',
+    me: 'Reproducir, confirmar la causa con evidencia y elegir la corrección.',
+  },
+  {
+    area: 'Documentación',
+    ai: 'Primer borrador de guías y comentarios a partir de mis notas; consistencia de estilo.',
+    me: 'Reescribir con mi voz, decidir qué explicar y comprobar que cada paso funciona tal como está escrito.',
+  },
+  {
+    area: 'Despliegue',
+    ai: 'Diagnóstico de particularidades del hosting: extensión de PostgreSQL, SNI en Neon, DNS del CDN.',
+    me: 'Ejecutar y verificar cada paso en el servidor real, y documentar lo que no estaba en ninguna guía.',
+  },
+]
+
+export const AI_BOUNDARIES = [
+  'Las reglas de negocio se implementaron y verificaron leyendo el enunciado, no delegando su interpretación.',
+  'Todo el código pasó por análisis estático en nivel 6, estilo automático y 163 pruebas antes de cada commit.',
+  'Ningún secreto —credenciales, tokens, cadenas de conexión— forma parte del código ni de los prompts versionados.',
+  'El historial de commits recoge el porqué de cada cambio, escrito para que otra persona pueda seguir el razonamiento.',
+]
+
 export const QUALITY_STATS = [
   { label: 'Pruebas', value: '163', note: '113 backend · 50 frontend' },
   { label: 'Análisis estático', value: 'Nivel 6', note: 'sin errores silenciados' },

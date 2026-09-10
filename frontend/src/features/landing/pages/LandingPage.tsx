@@ -13,11 +13,14 @@ import {
   Sparkles,
   Workflow,
 } from 'lucide-react'
-import type { ReactNode } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, type ReactNode } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 
 import {
   ACCOMMODATION_MATRIX,
+  AI_BOUNDARIES,
+  AI_PRINCIPLE,
+  AI_USAGE,
   BACKEND_STACK,
   CHALLENGE,
   DELIVERABLES,
@@ -52,6 +55,20 @@ const API_DOCS_URL = (import.meta.env.VITE_API_URL ?? 'http://localhost:8000/api
  * documentación de la API y al repositorio.
  */
 export function LandingPage() {
+  const { hash } = useLocation()
+
+  /*
+   * La página se carga bajo demanda, así que cuando el navegador intenta ir
+   * al ancla de la URL (#instalacion, #ia…) la sección todavía no existe. Al
+   * montarse, se desplaza a la sección indicada; sin esto, un enlace
+   * compartido a una sección concreta abriría siempre el principio.
+   */
+  useEffect(() => {
+    if (!hash) return
+    const target = document.getElementById(hash.slice(1))
+    target?.scrollIntoView({ block: 'start' })
+  }, [hash])
+
   return (
     <div className="pb-16">
       <Hero />
@@ -67,6 +84,7 @@ export function LandingPage() {
         <Security />
         <Persistence />
         <Process />
+        <AiCollaboration />
         <Installation />
         <Deliverables />
         <FinalCta />
@@ -363,6 +381,55 @@ function Process() {
             <p className="mt-1.5 text-sm text-ink-2">{detail}</p>
           </div>
         ))}
+      </div>
+    </Section>
+  )
+}
+
+function AiCollaboration() {
+  return (
+    <Section
+      id="ia"
+      eyebrow="Inteligencia artificial"
+      title="Cómo trabajé con la IA"
+      lead={AI_PRINCIPLE}
+    >
+      <div className="card overflow-hidden">
+        <table className="w-full text-left text-sm">
+          <caption className="sr-only">En qué se apoyó el trabajo en la IA y qué quedó bajo mi criterio</caption>
+          <thead className="border-b border-line bg-surface-2/60">
+            <tr>
+              <th scope="col" className="eyebrow px-5 py-3 w-44">Área</th>
+              <th scope="col" className="eyebrow px-5 py-3">
+                <span className="inline-flex items-center gap-1.5"><Sparkles className="size-3.5 text-accent" aria-hidden="true" /> Dónde ayudó la IA</span>
+              </th>
+              <th scope="col" className="eyebrow px-5 py-3">
+                <span className="inline-flex items-center gap-1.5"><Check className="size-3.5 text-success" aria-hidden="true" /> Qué hice yo</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-line">
+            {AI_USAGE.map((row) => (
+              <tr key={row.area} className="align-top">
+                <th scope="row" className="px-5 py-4 font-semibold text-ink">{row.area}</th>
+                <td className="px-5 py-4 text-ink-2">{row.ai}</td>
+                <td className="px-5 py-4 text-ink-2">{row.me}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="mt-6 rounded-card bg-accent/[0.06] p-5 ring-1 ring-accent/20">
+        <h3 className="font-semibold text-ink">Lo que garantiza que el resultado es mío</h3>
+        <ul className="mt-3 grid gap-2.5 sm:grid-cols-2">
+          {AI_BOUNDARIES.map((item) => (
+            <li key={item} className="flex items-start gap-2.5 text-sm text-ink-2">
+              <ShieldCheck className="mt-0.5 size-4 shrink-0 text-accent" aria-hidden="true" />
+              {item}
+            </li>
+          ))}
+        </ul>
       </div>
     </Section>
   )
