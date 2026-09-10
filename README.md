@@ -74,8 +74,13 @@ inválidas, no detectarlas después.
 
 | Componente | Dirección |
 |------------|-----------|
-| Aplicación | _(pendiente de despliegue)_ |
-| API        | _(pendiente de despliegue)_ |
+| Aplicación | <https://decameron.ingealex.com> |
+| API        | <https://api-decameron.ingealex.com/api/v1> |
+| Documentación de la API | <https://api-decameron.ingealex.com/docs/api> |
+
+Desplegado en Hostinger Cloud (PHP 8.3, LiteSpeed) con la base de datos en
+Neon (PostgreSQL gestionado). El detalle está en
+[`deploy/hostinger/README.md`](deploy/hostinger/README.md).
 
 ### En su equipo
 
@@ -601,7 +606,7 @@ prueba-tecnica-decameron/
 | Framework PHP (Laravel) | ✅ |
 | Integración continua | ✅ |
 | Pruebas unitarias | ✅ |
-| Despliegue en la nube con enlace | ⏳ |
+| Despliegue en la nube con enlace | ✅ |
 
 ### Añadido por iniciativa propia
 

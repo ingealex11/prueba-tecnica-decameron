@@ -104,12 +104,31 @@ el inicio de sesión funciona contra la API.
 - [ ] `https://api-decameron.<dominio>/api/v1/hotels` responde JSON
 - [ ] Asignar Junior + Sencilla devuelve 422 con las opciones válidas
 
+## Dos particularidades que encontré al desplegar
+
+**Neon y el libpq de Hostinger.** El cliente PostgreSQL del servidor es
+anterior al soporte de SNI, y Neon lo necesita para saber a qué proyecto va la
+conexión: responde `Endpoint ID is not specified`. Neon admite indicar el
+endpoint dentro de la contraseña, y así queda en el `.env`:
+
+```
+DB_PASSWORD="endpoint=<id-del-endpoint>$<contraseña>"
+```
+
+**DNS del subdominio de la API.** Al crear un subdominio, hPanel añade un
+registro `ALIAS` hacia su CDN, que sólo publicaba IPv6 en los primeros minutos
+y además cachearía las respuestas de la API. Para `api-decameron` eliminé ese
+`ALIAS` y puse un registro `A` directo al servidor; el frontend sí queda tras
+el CDN, que es donde aporta valor.
+
 ## Si algo falla
 
 | Síntoma | Causa habitual |
 |---|---|
 | `could not find driver` | `pdo_pgsql` sin activar en la configuración de PHP del sitio |
+| `Endpoint ID is not specified` | Falta el prefijo `endpoint=<id>$` en `DB_PASSWORD` (ver arriba) |
 | `SSL connection is required` | Falta `DB_SSLMODE=require` en `.env` |
+| `/docs/api` responde 403 | `API_DOCS_PUBLIC` no está en `true`, o la caché de configuración no se recompiló |
 | La app carga pero no hay hoteles | `CORS_ALLOWED_ORIGINS` no coincide exactamente con el origen del frontend (incluido `https://`) |
 | 500 al abrir la API | Revise `backend/storage/logs/laravel.log`; casi siempre es `APP_KEY` vacío o permisos de `storage/` |
 | Recargar `/app/hoteles` da 404 | Falta el `.htaccess` en la carpeta del frontend |
