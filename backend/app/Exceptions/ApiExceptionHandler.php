@@ -48,6 +48,11 @@ final class ApiExceptionHandler
      */
     public static function register(Exceptions $exceptions): void
     {
+        // Una regla de negocio violada es una respuesta prevista de la API, no
+        // un fallo del sistema. Registrarla como error llenaría el log de
+        // producción con cada 422 legítimo y taparía los errores reales.
+        $exceptions->dontReport(DomainException::class);
+
         $exceptions->render(static function (Throwable $e, Request $request): ?JsonResponse {
             // Las peticiones que no son de API conservan el comportamiento
             // estándar de Laravel; sólo se interviene lo que consume el cliente.
