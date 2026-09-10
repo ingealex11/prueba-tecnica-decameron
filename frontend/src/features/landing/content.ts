@@ -42,9 +42,9 @@ export const ACCOMMODATION_MATRIX = {
 
 export const HERO = {
   eyebrow: 'Prueba técnica · Desarrollador PHP · Hoteles Decameron',
-  title: 'Construí un sistema que hace imposible configurar mal un hotel.',
+  title: 'Sistema de gestión de hoteles y configuración de habitaciones.',
   lead:
-    'Me pidieron un CRUD de hoteles y habitaciones con tres reglas de negocio. Entregué una plataforma completa: API REST documentada, panel con autenticación en dos pasos, mapa de sedes, y 163 pruebas que demuestran que cada regla se cumple.',
+    'El enunciado pedía un CRUD de hoteles y habitaciones con tres reglas de negocio. Lo resolví con una API REST documentada, un panel con autenticación en dos pasos y mapa de sedes, y 163 pruebas automatizadas que cubren cada una de las reglas. En esta página explico qué se pidió, qué decidí y por qué, y cómo ponerlo en marcha.',
 }
 
 export const CHALLENGE: Item[] = [
@@ -132,7 +132,7 @@ export const SOLID: PrincipleItem[] = [
 ]
 
 export const SECURITY: Item[] = [
-  { title: 'Autenticación en dos pasos', detail: 'Saber la contraseña no basta. El código de verificación se guarda cifrado, caduca a los cinco minutos, se consume al usarse y se invalida tras cinco fallos.' },
+  { title: 'Autenticación en dos pasos', detail: 'Tras la contraseña se pide un código de verificación, que se guarda cifrado, caduca a los cinco minutos, se consume al usarse y se invalida tras cinco fallos.' },
   { title: 'Sin fugas por tiempo de respuesta', detail: 'Comparo la contraseña incluso cuando el correo no existe, contra un hash ficticio, para que la latencia no delate qué cuentas hay.' },
   { title: 'Inyección SQL', detail: 'Consultas parametrizadas vía Eloquent. El ordenamiento, que sí se interpola en ORDER BY, se restringe a una lista cerrada de columnas.' },
   { title: 'Cross-site scripting', detail: 'React escapa por defecto y no uso inserción directa de HTML en ningún punto.' },

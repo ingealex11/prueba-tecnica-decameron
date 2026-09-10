@@ -134,7 +134,7 @@ function Hero() {
 
 function Challenge() {
   return (
-    <Section id="reto" eyebrow="El reto" title="Qué me pidieron y qué añadí" lead="El enunciado define un CRUD de hoteles y habitaciones con tres reglas de negocio. Lo cumplí todo, y aproveché para añadir lo que un sistema así necesita cuando sale de la prueba y entra en operación.">
+    <Section id="reto" eyebrow="El reto" title="Qué se pidió y qué añadí" lead="El enunciado define un CRUD de hoteles y habitaciones con tres reglas de negocio. Cubrí esos requisitos y añadí algunas piezas que, en mi experiencia, un sistema así necesita al pasar de una prueba a la operación diaria.">
       <div className="grid gap-8 lg:grid-cols-2">
         <div>
           <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-ink"><Check className="size-4 text-success" aria-hidden="true" /> Lo que exige el enunciado</h3>
@@ -165,7 +165,7 @@ function Challenge() {
 
 function Architecture() {
   return (
-    <Section id="arquitectura" eyebrow="Arquitectura" title="Dos aplicaciones desacopladas y un dominio que no conoce el framework" lead="Frontend y backend se despliegan por separado y sólo comparten un contrato HTTP/JSON. Dentro del backend, las dependencias apuntan hacia el dominio: podría exponer las mismas reglas por consola o por GraphQL sin tocar una línea de lógica.">
+    <Section id="arquitectura" eyebrow="Arquitectura" title="Dos aplicaciones desacopladas y un dominio independiente del framework" lead="Frontend y backend se despliegan por separado y sólo comparten un contrato HTTP/JSON. Dentro del backend, las dependencias apuntan hacia el dominio, de modo que las mismas reglas podrían exponerse por consola o por otro protocolo sin cambiar la lógica.">
       <Figure caption="Cada capa responde a una pregunta distinta. El FormRequest pregunta si la petición está bien formada; el Service, si tiene sentido en el negocio. Mezclarlas habría sido más corto y habría dejado las reglas fuera del alcance de cualquier proceso que no fuera HTTP.">
         <ArchitectureDiagram />
       </Figure>
@@ -219,7 +219,7 @@ function BusinessRules() {
 
 function Auth() {
   return (
-    <Section id="autenticacion" eyebrow="Autenticación" title="Saber la contraseña no basta para entrar" lead="El enunciado no pedía login. Lo añadí porque un sistema con datos tributarios sin autenticación no es entregable, e implementé el segundo factor de verdad: el código se genera, se cifra, caduca y se verifica en el servidor. En la demostración se muestra en pantalla en lugar de enviarse por SMS; la verificación es la misma.">
+    <Section id="autenticacion" eyebrow="Autenticación" title="Inicio de sesión en dos pasos" lead="El enunciado no pedía inicio de sesión. Lo añadí porque el sistema maneja datos tributarios, e implementé el segundo factor de forma completa: el código se genera, se guarda cifrado, caduca y se verifica en el servidor. En esta demostración se muestra en pantalla en lugar de enviarse por SMS; la verificación es la misma.">
       <Figure caption="Comparo la contraseña incluso cuando el correo no existe, contra un hash ficticio: si no lo hiciera, la respuesta sería más rápida para correos inexistentes y esa diferencia delataría qué cuentas hay.">
         <AuthFlowDiagram />
       </Figure>
@@ -239,7 +239,7 @@ function DataModel() {
 
 function Stack() {
   return (
-    <Section id="stack" eyebrow="Tecnología" title="Qué usé y para qué" lead="Cada pieza responde a una necesidad concreta, no a una preferencia.">
+    <Section id="stack" eyebrow="Tecnología" title="Qué usé y para qué" lead="Elegí cada pieza por una necesidad concreta del proyecto; aquí indico cuál.">
       <div className="grid gap-6 lg:grid-cols-2">
         <TechColumn title="Backend" items={BACKEND_STACK} />
         <TechColumn title="Frontend" items={FRONTEND_STACK} />
@@ -269,7 +269,7 @@ function TechColumn({ title, items }: { title: string; items: TechItem[] }) {
 
 function Patterns() {
   return (
-    <Section id="patrones" eyebrow="Patrones de diseño" title="Cada patrón resuelve un problema concreto de este sistema" lead="Un patrón sin motivo es complejidad gratuita. Éstos son los que apliqué y qué me dio cada uno.">
+    <Section id="patrones" eyebrow="Patrones de diseño" title="Patrones aplicados y el problema que resuelve cada uno" lead="Procuré aplicar sólo los patrones que respondían a un problema concreto del sistema. Para cada uno indico qué hace, por qué lo elegí y dónde está en el código.">
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {PATTERNS.map((p) => (
           <article key={p.name} className="card flex flex-col p-5">
@@ -289,7 +289,7 @@ function Patterns() {
 
 function SolidPrinciples() {
   return (
-    <Section id="solid" eyebrow="Principios SOLID" title="Aplicados, con el archivo que lo demuestra" lead="No los cito: señalo dónde está cada uno en el código.">
+    <Section id="solid" eyebrow="Principios SOLID" title="Dónde se aplica cada principio" lead="Más que enumerarlos, indico el punto del código donde se aplica cada uno y la razón.">
       <ul className="grid gap-3 md:grid-cols-2">
         {SOLID.map((p) => (
           <li key={p.letter} className="card flex gap-4 p-5">
@@ -325,7 +325,7 @@ function Security() {
 
 function Persistence() {
   return (
-    <Section id="persistencia" eyebrow="Persistencia" title="Decisiones sobre PostgreSQL que importan" lead="Probé sobre PostgreSQL real, no sobre SQLite en memoria: el esquema usa CHECK, índices parciales y el operador ILIKE, que otro motor no reproduce. Una suite verde sobre otra base no diría nada del comportamiento en producción.">
+    <Section id="persistencia" eyebrow="Persistencia" title="Decisiones sobre la base de datos" lead="Las pruebas corren sobre PostgreSQL y no sobre SQLite en memoria: el esquema usa CHECK, índices parciales y el operador ILIKE, que otro motor no reproduce, así que una suite en verde sobre otra base diría poco del comportamiento real.">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {PERSISTENCE.map((item) => (
           <div key={item.title} className="card p-4">
@@ -340,7 +340,7 @@ function Persistence() {
 
 function Process() {
   return (
-    <Section id="calidad" eyebrow="Cómo lo construí" title="Método, no improvisación" lead="Trabajé con SCRUM adaptado a dos sprints: trece historias con criterios de aceptación verificables, definition of done, y trazabilidad de cada criterio del enunciado con la historia y la prueba que lo cubre.">
+    <Section id="calidad" eyebrow="Cómo lo construí" title="Cómo organicé el trabajo" lead="Seguí SCRUM adaptado a dos sprints: trece historias con criterios de aceptación verificables, definition of done, y trazabilidad de cada criterio del enunciado con la historia y la prueba que lo cubre.">
       <ol className="relative space-y-6 border-l border-line pl-8">
         {PROCESS.map((p) => (
           <li key={p.step} className="relative">
@@ -373,8 +373,8 @@ function Installation() {
     <Section
       id="instalacion"
       eyebrow="Cómo ejecutarlo"
-      title="Paso a paso, sin dar nada por sabido"
-      lead="El enunciado pide la guía «como si su abuelita quisiera realizar el despliegue». Ésta es: cinco pasos, cada orden lista para copiar y, tras cada uno, qué debería verse en pantalla. La versión extendida, con la instalación de cada requisito, está en INSTALL.md."
+      title="Guía paso a paso"
+      lead="El enunciado pide la guía «como si su abuelita quisiera realizar el despliegue». Son cinco pasos, con cada orden lista para copiar y, tras cada uno, qué debería verse en pantalla. La versión extendida, con la instalación de cada requisito, está en INSTALL.md."
     >
       <div className="space-y-10">
         <div>
@@ -453,7 +453,7 @@ function Deliverables() {
     <Section
       id="entregables"
       eyebrow="Entregables"
-      title="Todo lo que pide el enunciado, en un solo sitio"
+      title="Entregables del enunciado"
       lead="Código en repositorio público, documentación con diagramas UML, dump de la base de datos listo para instalar y guía de despliegue. Cada uno enlazado desde aquí."
     >
       <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

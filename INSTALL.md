@@ -320,8 +320,8 @@ Abra **Chrome** o **Firefox** y visite:
 
 ### http://localhost:5173
 
-**Debería ver** una página de presentación oscura con el título «Construí un
-sistema que hace imposible configurar mal un hotel».
+**Debería ver** una página de presentación oscura con el título «Sistema de
+gestión de hoteles y configuración de habitaciones».
 
 Ahora recorra esta lista para confirmar que todo está en su sitio:
 

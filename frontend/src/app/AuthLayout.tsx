@@ -38,11 +38,11 @@ export function AuthLayout() {
 
         <div className="relative max-w-md space-y-6">
           <h1 className="text-4xl font-bold leading-tight tracking-tight">
-            Cada hotel, cada habitación, <span className="text-brand-300">sin configuraciones inválidas.</span>
+            Gestión de hoteles y <span className="text-brand-300">configuración de habitaciones.</span>
           </h1>
           <p className="text-white/70">
-            El sistema hace cumplir las reglas del negocio por diseño: la acomodación siempre corresponde al tipo, nunca
-            se repite una combinación, y la capacidad del hotel jamás se supera.
+            El sistema aplica las reglas del negocio desde el diseño: la acomodación corresponde al tipo de habitación,
+            no se repiten combinaciones y la capacidad de cada hotel se respeta.
           </p>
 
           <ul className="space-y-3 text-sm text-white/80">
