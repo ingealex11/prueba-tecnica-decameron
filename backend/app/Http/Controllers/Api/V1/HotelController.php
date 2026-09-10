@@ -23,6 +23,8 @@ use Illuminate\Http\JsonResponse;
  * Ninguna acción captura excepciones. Las de dominio suben hasta
  * `ApiExceptionHandler`, que ya sabe traducirlas al código HTTP correcto;
  * capturarlas aquí duplicaría esa lógica en cada método.
+ *
+ * @tags Hoteles
  */
 final class HotelController extends Controller
 {

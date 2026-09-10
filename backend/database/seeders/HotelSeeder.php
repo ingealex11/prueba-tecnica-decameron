@@ -51,6 +51,8 @@ final class HotelSeeder extends Seeder
             cityName: 'Cartagena',
             nit: '12345678-9',
             maxRooms: 42,
+            // Sector de Bocagrande, donde se concentra la oferta hotelera.
+            coordinates: [10.4017, -75.5537],
         );
 
         $this->configureRooms($hotel, [
@@ -70,6 +72,7 @@ final class HotelSeeder extends Seeder
             cityName: 'San Andrés',
             nit: '900123456-7',
             maxRooms: 60,
+            coordinates: [12.5275, -81.7198],
         );
 
         $this->configureRooms($sanAndres, [
@@ -86,6 +89,7 @@ final class HotelSeeder extends Seeder
             cityName: 'Santa Marta',
             nit: '830987654-3',
             maxRooms: 80,
+            coordinates: [11.1047, -74.2154],
         );
 
         $this->configureRooms($santaMarta, [
@@ -100,11 +104,15 @@ final class HotelSeeder extends Seeder
             cityName: 'Cartagena',
             nit: '901456789-1',
             maxRooms: 120,
+            coordinates: [10.2333, -75.5833],
         );
     }
 
     /**
      * Crea o actualiza un hotel identificándolo por su NIT.
+     *
+     * @param  array{0: float, 1: float}|null  $coordinates  Latitud y longitud,
+     *                                                       o `null` si se desconocen.
      */
     private function createHotel(
         string $name,
@@ -112,6 +120,7 @@ final class HotelSeeder extends Seeder
         string $cityName,
         string $nit,
         int $maxRooms,
+        ?array $coordinates = null,
     ): Hotel {
         $city = City::query()->where('name', $cityName)->firstOrFail();
 
@@ -122,6 +131,8 @@ final class HotelSeeder extends Seeder
                 'address' => $address,
                 'city_id' => $city->id,
                 'max_rooms' => $maxRooms,
+                'latitude' => $coordinates[0] ?? null,
+                'longitude' => $coordinates[1] ?? null,
             ],
         );
     }

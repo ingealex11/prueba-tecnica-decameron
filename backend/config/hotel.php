@@ -46,6 +46,37 @@ return [
 
     /*
     |---------------------------------------------------------------------------
+    | Segundo factor de autenticación
+    |---------------------------------------------------------------------------
+    |
+    | `reveal_code` controla el canal de entrega del código. Activo, el código
+    | se devuelve en la respuesta del inicio de sesión para que la aplicación
+    | pueda mostrarlo: es el modo demostración, pensado para evaluar sin
+    | depender de una bandeja de correo. En producción debe desactivarse y el
+    | código enviarse por SMS o correo.
+    |
+    | La verificación del código es idéntica en ambos modos.
+    |
+    */
+
+    'two_factor' => [
+        'reveal_code' => (bool) env('TWO_FACTOR_REVEAL_CODE', true),
+    ],
+
+    /*
+    |---------------------------------------------------------------------------
+    | Documentación pública de la API
+    |---------------------------------------------------------------------------
+    |
+    | Permite consultar /docs/api fuera del entorno local. Se activa en la
+    | instancia de demostración y debe desactivarse en un despliegue real.
+    |
+    */
+
+    'docs_public' => (bool) env('API_DOCS_PUBLIC', false),
+
+    /*
+    |---------------------------------------------------------------------------
     | Límite de peticiones
     |---------------------------------------------------------------------------
     |

@@ -18,6 +18,8 @@ use Illuminate\Http\JsonResponse;
  * porque una configuración de habitación no tiene existencia propia fuera de su
  * hotel. El identificador del hotel no es decorativo: el servicio comprueba que
  * la configuración pertenezca efectivamente a ese hotel antes de tocarla.
+ *
+ * @tags Habitaciones
  */
 final class HotelRoomController extends Controller
 {

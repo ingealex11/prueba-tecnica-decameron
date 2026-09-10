@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\CatalogController;
 use App\Http\Controllers\Api\V1\HotelController;
 use App\Http\Controllers\Api\V1\HotelRoomController;
@@ -50,6 +51,27 @@ if (config('hotel.auth_enabled')) {
 $readMiddleware = ['throttle:'.config('hotel.rate_limit.read').',1'];
 
 Route::prefix('v1')->group(function () use ($readMiddleware, $writeMiddleware): void {
+
+    /*
+    | Autenticación en dos pasos.
+    |
+    | El límite de peticiones es deliberadamente estricto: cinco intentos de
+    | inicio de sesión por minuto y por IP bastan para cualquier persona y
+    | frenan a quien pruebe contraseñas a ciegas.
+    */
+    Route::prefix('auth')
+        ->name('api.v1.auth.')
+        ->group(function (): void {
+            Route::middleware('throttle:5,1')->group(function (): void {
+                Route::post('login', [AuthController::class, 'login'])->name('login');
+                Route::post('verify', [AuthController::class, 'verify'])->name('verify');
+            });
+
+            Route::middleware('auth:sanctum')->group(function (): void {
+                Route::get('me', [AuthController::class, 'me'])->name('me');
+                Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+            });
+        });
 
     /*
     | Catálogos: sólo lectura, por decisión de negocio explícita.

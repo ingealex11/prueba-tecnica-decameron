@@ -23,6 +23,8 @@ use Illuminate\Http\JsonResponse;
  * Estos endpoints son los que permiten que el frontend no lleve codificada
  * ninguna regla del negocio: pregunta al servidor qué opciones existen y cuáles
  * son válidas para cada tipo.
+ *
+ * @tags Catálogos
  */
 final class CatalogController extends Controller
 {

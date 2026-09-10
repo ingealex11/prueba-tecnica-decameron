@@ -56,6 +56,11 @@ class StoreHotelRequest extends FormRequest
             // El tope superior evita que un error de digitación cree un hotel
             // con un millón de habitaciones.
             'max_rooms' => ['required', 'integer', 'min:1', 'max:10000'],
+
+            // Ubicación opcional, pero si se indica una coordenada debe venir
+            // la otra: una latitud sin longitud no sitúa nada en el mapa.
+            'latitude' => ['nullable', 'numeric', 'between:-90,90', 'required_with:longitude'],
+            'longitude' => ['nullable', 'numeric', 'between:-180,180', 'required_with:latitude'],
         ];
     }
 
@@ -80,6 +85,10 @@ class StoreHotelRequest extends FormRequest
             'max_rooms.required' => 'El número máximo de habitaciones es obligatorio.',
             'max_rooms.min' => 'El hotel debe tener al menos una habitación.',
             'max_rooms.max' => 'El número máximo de habitaciones no puede superar 10.000.',
+            'latitude.between' => 'La latitud debe estar entre -90 y 90 grados.',
+            'longitude.between' => 'La longitud debe estar entre -180 y 180 grados.',
+            'latitude.required_with' => 'Indique la latitud junto con la longitud.',
+            'longitude.required_with' => 'Indique la longitud junto con la latitud.',
         ];
     }
 

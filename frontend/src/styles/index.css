@@ -1,81 +1,201 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 @import 'tailwindcss';
+@import 'leaflet/dist/leaflet.css';
 
 /**
- * Sistema de diseño de la aplicación.
+ * Sistema de diseño.
  *
- * Los colores y medidas se declaran como tokens en lugar de repetirse por los
- * componentes: cambiar la identidad visual se resuelve en este archivo y no
- * buscando literales por todo el código.
+ * Los colores se declaran en dos niveles. Los *primitivos* (`brand-500`,
+ * `slate-900`) son la paleta; los *semánticos* (`surface`, `ink`, `line`)
+ * nombran el papel que cumple un color en la interfaz. Los componentes usan
+ * sólo los semánticos, de modo que el modo oscuro se resuelve redefiniendo una
+ * docena de variables en lugar de tocando cada componente.
  */
+
+/* El modo oscuro se activa con la clase `dark` en <html>, que gobierna la
+   aplicación; la preferencia del sistema sólo decide el valor inicial. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
-  /* Azul marino corporativo, evocando el mar del Caribe donde opera la cadena. */
-  --color-brand-50: #eef6ff;
-  --color-brand-100: #d9eaff;
-  --color-brand-200: #bcdbff;
-  --color-brand-300: #8ec5ff;
-  --color-brand-400: #59a5ff;
-  --color-brand-500: #3382fc;
-  --color-brand-600: #1d62f1;
-  --color-brand-700: #164cdd;
-  --color-brand-800: #183fb3;
-  --color-brand-900: #1a398d;
-  --color-brand-950: #142456;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
 
-  /* Turquesa de acento, para destacar capacidad disponible y acciones. */
-  --color-accent-400: #22d3ee;
-  --color-accent-500: #06b6d4;
-  --color-accent-600: #0891b2;
+  /* ---- Paleta primitiva ---- */
+  --color-brand-50: #eef5ff;
+  --color-brand-100: #d9e8ff;
+  --color-brand-200: #bcd6ff;
+  --color-brand-300: #8ebbff;
+  --color-brand-400: #5996ff;
+  --color-brand-500: #2f6fff;
+  --color-brand-600: #1c53f5;
+  --color-brand-700: #1541e1;
+  --color-brand-800: #1836b6;
+  --color-brand-900: #1a338f;
+  --color-brand-950: #132057;
 
-  --font-sans:
-    'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
-    'Helvetica Neue', Arial, sans-serif;
+  --color-teal-400: #2dd4bf;
+  --color-teal-500: #14b8a6;
 
-  /*
-   * Punto de corte propio para portátiles de 13 pulgadas (1280x800), que el
-   * enunciado menciona de forma explícita como equipo de los gerentes.
-   * Tailwind trae `xl` en 1280px, pero nombrarlo aquí deja constancia de que
-   * es un requisito del negocio y no una medida arbitraria.
-   */
+  /* ---- Tokens semánticos (modo claro) ---- */
+  --color-canvas: #f4f6fb;          /* fondo de la página */
+  --color-surface: #ffffff;         /* tarjetas y paneles */
+  --color-surface-2: #f8fafc;       /* zonas secundarias dentro de un panel */
+  --color-line: #e5e9f2;            /* bordes */
+  --color-line-strong: #cfd6e4;
+  --color-ink: #0f172a;             /* texto principal */
+  --color-ink-2: #475569;           /* texto secundario */
+  --color-ink-3: #94a3b8;           /* texto terciario, etiquetas */
+  --color-accent: #2f6fff;
+  --color-accent-ink: #ffffff;
+
+  --color-sidebar: #0b1220;
+  --color-sidebar-2: #111a2e;
+  --color-sidebar-line: #1e293b;
+  --color-sidebar-ink: #cbd5e1;
+  --color-sidebar-ink-2: #64748b;
+
+  --color-success: #16a34a;
+  --color-success-soft: #dcfce7;
+  --color-warning: #d97706;
+  --color-warning-soft: #fef3c7;
+  --color-danger: #dc2626;
+  --color-danger-soft: #fee2e2;
+  --color-info: #2563eb;
+  --color-info-soft: #dbeafe;
+
+  --shadow-card: 0 1px 2px rgb(15 23 42 / 0.04), 0 1px 3px rgb(15 23 42 / 0.06);
+  --shadow-pop: 0 10px 30px -10px rgb(15 23 42 / 0.25), 0 2px 8px rgb(15 23 42 / 0.08);
+
+  --radius-card: 0.875rem;
+
   --breakpoint-laptop: 1280px;
+
+  --animate-fade-up: fade-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-fade-in: fade-in 0.3s ease-out both;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes shimmer {
+    from { background-position: -200% 0; }
+    to { background-position: 200% 0; }
+  }
 }
 
-/**
- * Ajustes de base.
- */
+/* ---- Tokens semánticos (modo oscuro) ---- */
+.dark {
+  --color-canvas: #0b1220;
+  --color-surface: #111a2e;
+  --color-surface-2: #16213a;
+  --color-line: #1f2b45;
+  --color-line-strong: #2c3a5a;
+  --color-ink: #e6ebf5;
+  --color-ink-2: #a3b0c8;
+  --color-ink-3: #64748b;
+  --color-accent: #5996ff;
+  --color-accent-ink: #0b1220;
+
+  --color-sidebar: #070c17;
+  --color-sidebar-2: #0d1526;
+  --color-sidebar-line: #172036;
+
+  --color-success-soft: rgb(22 163 74 / 0.18);
+  --color-warning-soft: rgb(217 119 6 / 0.18);
+  --color-danger-soft: rgb(220 38 38 / 0.18);
+  --color-info-soft: rgb(37 99 235 / 0.18);
+
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 1px 3px rgb(0 0 0 / 0.5);
+  --shadow-pop: 0 10px 30px -10px rgb(0 0 0 / 0.7), 0 2px 8px rgb(0 0 0 / 0.4);
+
+  color-scheme: dark;
+}
+
 @layer base {
   html {
-    /* Desplazamiento suave para los enlaces internos de la landing. */
     scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 
   body {
-    @apply bg-slate-50 text-slate-800 antialiased;
+    @apply bg-canvas text-ink font-sans;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11', 'ss01';
   }
 
-  /*
-   * Contorno de foco visible en toda la aplicación.
-   *
-   * Es un requisito de accesibilidad: quien navega con teclado necesita saber
-   * dónde está. Se usa `:focus-visible` y no `:focus` para no mostrarlo al
-   * hacer clic con el ratón, donde resultaría ruidoso.
-   */
+  /* Contorno de foco visible sólo con teclado: quien navega con Tab necesita
+     saber dónde está; quien hace clic no necesita el anillo. */
   :focus-visible {
-    @apply outline-2 outline-offset-2 outline-brand-500;
+    @apply outline-2 outline-offset-2 outline-accent;
   }
 
-  /*
-   * Respeta la preferencia del sistema de reducir el movimiento. Las
-   * animaciones decorativas no deben imponerse a quien tiene sensibilidad
-   * vestibular.
-   */
+  ::selection {
+    @apply bg-brand-500/25;
+  }
+
+  /* Barra de desplazamiento discreta en paneles largos. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line-strong) transparent;
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
+    *, *::before, *::after {
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
     }
   }
+}
+
+@layer components {
+  /* Tarjeta base de la aplicación. */
+  .card {
+    @apply rounded-card bg-surface ring-1 ring-line shadow-card;
+  }
+
+  /* Etiqueta pequeña en mayúsculas para cabeceras de tabla y secciones. */
+  .eyebrow {
+    @apply text-[0.6875rem] font-semibold uppercase tracking-[0.12em] text-ink-3;
+  }
+
+  /* Esqueleto de carga con brillo desplazándose. */
+  .skeleton {
+    @apply rounded-md bg-line;
+    background-image: linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 0.35) 50%, transparent 100%);
+    background-size: 200% 100%;
+    animation: var(--animate-shimmer);
+  }
+  .dark .skeleton {
+    background-image: linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 0.06) 50%, transparent 100%);
+  }
+}
+
+/* ---- Leaflet: integración con el tema ---- */
+.leaflet-container {
+  @apply font-sans rounded-card;
+  background: var(--color-surface-2);
+}
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  @apply bg-surface text-ink shadow-pop;
+}
+.leaflet-popup-content {
+  @apply m-3 text-sm;
+}
+.leaflet-control-zoom a {
+  @apply bg-surface text-ink border-line;
+}
+.dark .leaflet-tile {
+  /* Oscurece el mapa base para que no deslumbre en modo oscuro. */
+  filter: brightness(0.7) contrast(1.05) saturate(0.85);
+}
+.leaflet-control-attribution {
+  @apply text-[10px] bg-surface/80 text-ink-3;
 }

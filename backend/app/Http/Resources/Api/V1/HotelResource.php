@@ -33,6 +33,12 @@ final class HotelResource extends JsonResource
             'nit' => $this->nit,
             'max_rooms' => $this->max_rooms,
 
+            // Coordenadas agrupadas: el cliente comprueba un solo valor nulo
+            // para saber si puede dibujar el hotel en el mapa.
+            'location' => $this->hasCoordinates()
+                ? ['latitude' => $this->latitude, 'longitude' => $this->longitude]
+                : null,
+
             // Se calculan en el servidor y se envían ya resueltos: si los
             // calculara el cliente, cada frontend tendría que reimplementar la
             // misma resta y podrían discrepar.

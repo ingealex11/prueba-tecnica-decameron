@@ -21,6 +21,9 @@ final readonly class HotelData
         public int $cityId,
         public string $nit,
         public int $maxRooms,
+        /** Coordenadas opcionales: un hotel puede registrarse sin ubicación. */
+        public ?float $latitude = null,
+        public ?float $longitude = null,
     ) {}
 
     /**
@@ -39,6 +42,8 @@ final readonly class HotelData
             cityId: (int) $validated['city_id'],
             nit: trim((string) $validated['nit']),
             maxRooms: (int) $validated['max_rooms'],
+            latitude: isset($validated['latitude']) ? (float) $validated['latitude'] : null,
+            longitude: isset($validated['longitude']) ? (float) $validated['longitude'] : null,
         );
     }
 
@@ -55,6 +60,8 @@ final readonly class HotelData
             'city_id' => $this->cityId,
             'nit' => $this->nit,
             'max_rooms' => $this->maxRooms,
+            'latitude' => $this->latitude,
+            'longitude' => $this->longitude,
         ];
     }
 }

@@ -35,6 +35,8 @@ class Hotel extends Model
     protected $fillable = [
         'name',
         'address',
+        'latitude',
+        'longitude',
         'city_id',
         'nit',
         'max_rooms',
@@ -45,7 +47,17 @@ class Hotel extends Model
         return [
             'max_rooms' => 'integer',
             'city_id' => 'integer',
+            // Se exponen como float para el cliente; en la base se guardan como
+            // decimal exacto, que es lo que evita desviaciones acumuladas.
+            'latitude' => 'float',
+            'longitude' => 'float',
         ];
+    }
+
+    /** Indica si el hotel tiene ubicación conocida para situarlo en un mapa. */
+    public function hasCoordinates(): bool
+    {
+        return $this->latitude !== null && $this->longitude !== null;
     }
 
     /**
